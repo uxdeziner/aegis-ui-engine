@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisUI Showcase</title>
+  <meta name="description" content="AegisUI turns design tokens and a CLAUDE.md rulebook into guardrails, so the UI that AI agents write is on-brand, accessible and consistent from the first pass.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0d1626">
+
+  <!-- Open Graph / social. Crawlers need absolute URLs: replace the relative
+       og:image / og:url values with the deployed origin when you publish. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AegisUI: the design system your AI agents actually follow">
+  <meta property="og:description" content="Design tokens + CLAUDE.md + CI guardrails. Generated UI that ships on-brand, accessible and consistent, without the rework loop.">
+  <meta property="og:image" content="og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Before and after: a generic AI-generated dashboard next to the same dashboard built on AegisUI tokens.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AegisUI: the design system your AI agents actually follow">
+  <meta name="twitter:description" content="Design tokens + CLAUDE.md + CI guardrails for AI-generated UI.">
+  <meta name="twitter:image" content="og-cover.png">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z' fill='%232c56e0'/%3E%3Cpath d='m11 16 3.5 3.5L21.5 12' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="showcase.css">
+  <script>
+    /* Apply a saved theme before first paint to avoid a flash. */
+    try { var t = localStorage.getItem("aegis-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  </script>
+</head>
+<body>
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-shield" viewBox="0 0 32 32"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z" fill="currentColor"/><path d="m11 16 3.5 3.5L21.5 12" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24"><path d="M9 6 3 12l6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8.2 10.8 7.6-4.6M8.2 13.2l7.6 4.6" stroke="currentColor" stroke-width="2"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="#top" aria-label="AegisUI home">
+        <svg class="brand__mark" style="color:var(--color-action)" aria-hidden="true"><use href="#i-shield"/></svg>
+        AegisUI <span class="brand__tag">Case study</span>
+      </a>
+      <nav class="site-nav" aria-label="Sections">
+        <a href="#compare">Before / After</a>
+        <a href="#roi">ROI</a>
+        <a href="#blueprint">Architecture</a>
+        <a href="#guide">How-to</a>
+        <a href="#share">Share</a>
+      </nav>
+      <button class="btn btn--ghost theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
+        <svg aria-hidden="true"><use href="#i-moon"/></svg><span>Theme</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="top">
+      <div class="container hero__grid">
+        <div>
+          <span class="eyebrow">UX engineering case study</span>
+          <h1>The design system your AI agents actually follow.</h1>
+          <p class="hero__lede">AI coding agents produce UI quickly, and without guidance it all looks the same: off-brand gradients, inaccessible contrast and a new border radius on every card. AegisUI is a token-and-rules layer (design tokens, a <code>CLAUDE.md</code> rulebook, component contracts and CI guardrails) that turns agent output into production UI the first time.</p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#compare">See the transformation</a>
+            <a class="btn btn--secondary" href="#roi">Model your ROI</a>
+          </div>
+          <div class="hero__meta">
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>Framework-agnostic CSS variables</span>
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>WCAG 2.2 AA by contract</span>
+            <span><svg aria-hidden="true"><use href="#i-check"/></svg>Works with any agent that reads repo context</span>
+          </div>
+        </div>
+        <div class="kpis" aria-live="polite">
+          <div class="card kpi">
+            <div class="kpi__label">Unique colors</div>
+            <div class="kpi__value" id="heroColors">–</div>
+            <div class="kpi__note">Measured live from the two dashboards below</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi__label">Lowest text contrast</div>
+            <div class="kpi__value" id="heroContrast">–</div>
+            <div class="kpi__note">WCAG AA needs 4.5:1 for body text</div>
+          </div>
+          <div class="card kpi">
+            <div class="kpi__label">Modeled annual savings</div>
+            <div class="kpi__value" id="heroSavings">–</div>
+            <div class="kpi__note">From the ROI model's editable assumptions</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CASE ================= -->
+    <section class="section" id="case" aria-labelledby="case-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">The brief</span>
+          <h2 id="case-title">The problem isn't that AI writes UI. It's that AI writes <em>generic</em> UI.</h2>
+          <p>Every prompt starts from zero brand context, so every screen gets reviewed, rejected and regenerated. AegisUI moves the design system into a form the agent reads.</p>
+        </div>
+        <div class="case-grid">
+          <article class="card case-card">
+            <span class="case-card__num">01 / Challenge</span>
+            <h3>Speed without standards</h3>
+            <ul>
+              <li>Agents invent colors, spacing and radii on every run</li>
+              <li>Accessibility is accidental, not guaranteed</li>
+              <li>Design review becomes a manual rework queue</li>
+              <li>Token spend grows with each regeneration loop</li>
+            </ul>
+          </article>
+          <article class="card case-card">
+            <span class="case-card__num">02 / Approach</span>
+            <h3>Make the system machine-readable</h3>
+            <ul>
+              <li>Single source of truth in DTCG <code>tokens.json</code></li>
+              <li>Compiled to CSS variables + typed exports</li>
+              <li><code>CLAUDE.md</code> rules + per-component contracts</li>
+              <li>Token lint, axe and visual checks in CI</li>
+            </ul>
+          </article>
+          <article class="card case-card">
+            <span class="case-card__num">03 / Outcome</span>
+            <h3>First-pass output that ships</h3>
+            <ul>
+              <li>Generated UI uses only approved tokens</li>
+              <li>Contrast and focus states enforced by contract</li>
+              <li>Fewer regeneration loops, so fewer tokens</li>
+              <li>Designers review intent, not hex codes</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMPARE ================= -->
+    <section class="section" id="compare" aria-labelledby="compare-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">01 · Live comparison</span>
+          <h2 id="compare-title">Same prompt. Same data. Two very different products.</h2>
+          <p>Both sides are real, interactive DOM. Drag the handle to compare. Turn on <strong>Audit</strong> to see each defect on the left and each token on the right. The table below the slider measures both live.</p>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn--secondary btn--sm" id="sweepBtn" type="button"><svg aria-hidden="true"><use href="#i-play"/></svg>Auto-sweep</button>
+          <button class="btn btn--secondary btn--sm" id="auditBtn" type="button" aria-pressed="false">Audit</button>
+          <button class="btn btn--ghost btn--sm" data-pos="0" type="button">Show After</button>
+          <button class="btn btn--ghost btn--sm" data-pos="50" type="button">50 / 50</button>
+          <button class="btn btn--ghost btn--sm" data-pos="100" type="button">Show Before</button>
+          <span class="toolbar__spacer"></span>
+          <span class="hint">Focus the handle, then use <kbd>←</kbd> <kbd>→</kbd> (<kbd>Shift</kbd> for larger steps)</span>
+        </div>
+
+        <div class="compare" id="compareBox" data-near="">
+          <!-- BEFORE: generic AI output -->
+          <div class="compare__pane compare__pane--before" id="paneBefore" aria-label="Before AegisUI: generic AI-generated dashboard">
+            <div class="slop">
+              <div class="slop__top">
+                <div class="slop__title" data-note="gradient text · serif heading">🚀 Your Amazing Billing Dashboard ✨</div>
+                <p class="slop__sub" data-note="contrast fail">Everything you need to supercharge your revenue!!</p>
+                <button class="slop__cta" type="button" data-note="vague CTA · 50px radius">Click Here! 🎉</button>
+              </div>
+              <div class="slop__kpis">
+                <div class="slop__kpi" data-note="radius 24px">
+                  <div class="slop__kpi-emoji">💰</div>
+                  <div class="slop__kpi-label">MRR</div>
+                  <div class="slop__kpi-value">$482100</div>
+                  <div class="slop__kpi-trend">▲ 4.2% 🔥</div>
+                </div>
+                <div class="slop__kpi" data-note="radius 3px">
+                  <div class="slop__kpi-emoji">👥</div>
+                  <div class="slop__kpi-label">Seats</div>
+                  <div class="slop__kpi-value">12.48K</div>
+                  <div class="slop__kpi-trend">▲ 312 new!</div>
+                </div>
+                <div class="slop__kpi" data-note="3rd font family">
+                  <div class="slop__kpi-emoji">📉</div>
+                  <div class="slop__kpi-label">Churn</div>
+                  <div class="slop__kpi-value">1.80%</div>
+                  <div class="slop__kpi-trend">▼ 0.3 pts 😎</div>
+                </div>
+              </div>
+              <div class="slop__alert" data-note="1.9:1 contrast · no icon">⚠️ Heads up! Some payments might have failed, check it out!</div>
+              <div class="slop__panel">
+                <div class="slop__filters">
+                  <input class="slop__input" type="search" placeholder="🔍 Search stuff..." data-note="no label">
+                  <select class="slop__select" aria-label="Status">
+                    <option>All</option><option>Paid</option><option>Due</option><option>Failed</option>
+                  </select>
+                  <button class="slop__btn2" type="button" data-note="2nd button style">GO →</button>
+                </div>
+                <table class="slop__table">
+                  <thead><tr><th>Customer</th><th>Amount</th><th class="hide-sm">Date</th><th>Status</th><th class="hide-sm"></th></tr></thead>
+                  <tbody>
+                    <tr><td>Northwind</td><td>$12400</td><td class="hide-sm">11/2/26</td><td><span class="slop__status--paid" data-note="color-only status">Paid</span></td><td class="hide-sm"><span class="slop__link">view</span></td></tr>
+                    <tr><td>Globex Corp.</td><td>$8,950.5</td><td class="hide-sm">Nov 1</td><td><span class="slop__status--due">Due</span></td><td class="hide-sm"><span class="slop__link">view</span></td></tr>
+                    <tr><td>Initech</td><td>$3.2k</td><td class="hide-sm">2026-10-30</td><td><span class="slop__status--failed">Failed</span></td><td class="hide-sm"><span class="slop__link" data-note="span, not button">view</span></td></tr>
+                    <tr><td>Umbrella</td><td>$21,780.00</td><td class="hide-sm">10/28</td><td><span class="slop__status--paid">Paid</span></td><td class="hide-sm"><span class="slop__link">view</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- AFTER: AegisUI enterprise build -->
+          <div class="compare__pane compare__pane--after" id="paneAfter" aria-label="After AegisUI: token-driven enterprise dashboard">
+            <div class="ent">
+              <div class="ent__head">
+                <div>
+                  <div class="ent__crumb">Finance / Billing</div>
+                  <h3 class="ent__title" data-note="text.xl · weight.semibold">Q4 billing overview</h3>
+                </div>
+                <div class="ent__actions">
+                  <button class="btn btn--secondary" type="button">Export CSV</button>
+                  <button class="btn btn--primary" type="button" data-note="color.action · radius.sm">Create invoice</button>
+                </div>
+              </div>
+              <div class="ent__kpis">
+                <div class="ent__kpi" data-note="radius.md · space.4">
+                  <div class="ent__kpi-label">Monthly recurring revenue</div>
+                  <div class="ent__kpi-value">$482.1k</div>
+                  <div class="ent__kpi-delta"><span class="badge badge--success"><svg aria-hidden="true"><use href="#i-up"/></svg>4.2%</span> vs. last month</div>
+                </div>
+                <div class="ent__kpi">
+                  <div class="ent__kpi-label">Active seats</div>
+                  <div class="ent__kpi-value">12,480</div>
+                  <div class="ent__kpi-delta"><span class="badge badge--success"><svg aria-hidden="true"><use href="#i-up"/></svg>312</span> net new</div>
+                </div>
+                <div class="ent__kpi">
+                  <div class="ent__kpi-label">Logo churn</div>
+                  <div class="ent__kpi-value">1.8%</div>
+                  <div class="ent__kpi-delta"><span class="badge badge--success"><svg aria-hidden="true"><use href="#i-down"/></svg>0.3 pts</span> improving</div>
+                </div>
+              </div>
+              <div class="ent__alert" role="status" data-note="color.danger · icon + text">
+                <svg aria-hidden="true"><use href="#i-alert"/></svg>
+                <div><strong>1 payment failed.</strong> <span>Initech's card was declined on Oct 30. Retry is scheduled for Nov 6.</span></div>
+              </div>
+              <div class="ent__panel">
+                <div class="ent__filters">
+                  <label class="field" data-note="labelled field">
+                    <span class="field__label">Search customers</span>
+                    <input class="input" type="search" placeholder="Name or invoice ID">
+                  </label>
+                  <label class="field field--narrow">
+                    <span class="field__label">Status</span>
+                    <select class="select"><option>All statuses</option><option>Paid</option><option>Due</option><option>Failed</option></select>
+                  </label>
+                  <button class="btn btn--secondary" type="button">Apply</button>
+                </div>
+                <div class="ent__table-wrap">
+                  <table class="ent__table">
+                    <thead><tr><th>Customer</th><th class="hide-sm">Invoice</th><th class="hide-sm">Issued</th><th class="num">Amount</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr><td>Northwind</td><td class="mono hide-sm">INV-2041</td><td class="hide-sm">Nov 2, 2026</td><td class="num">$12,400.00</td><td><span class="badge badge--success" data-note="icon + label"><svg aria-hidden="true"><use href="#i-check"/></svg>Paid</span></td></tr>
+                      <tr><td>Globex</td><td class="mono hide-sm">INV-2040</td><td class="hide-sm">Nov 1, 2026</td><td class="num">$8,950.50</td><td><span class="badge badge--warning"><svg aria-hidden="true"><use href="#i-clock"/></svg>Due</span></td></tr>
+                      <tr><td>Initech</td><td class="mono hide-sm">INV-2039</td><td class="hide-sm">Oct 30, 2026</td><td class="num" data-note="tabular nums">$3,200.00</td><td><span class="badge badge--danger"><svg aria-hidden="true"><use href="#i-x"/></svg>Failed</span></td></tr>
+                      <tr><td>Umbrella</td><td class="mono hide-sm">INV-2038</td><td class="hide-sm">Oct 28, 2026</td><td class="num">$21,780.00</td><td><span class="badge badge--success"><svg aria-hidden="true"><use href="#i-check"/></svg>Paid</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <span class="compare__tag compare__tag--before">BEFORE · generic AI</span>
+          <span class="compare__tag compare__tag--after">AFTER · AegisUI</span>
+          <div class="compare__handle" id="compareHandle" role="slider" tabindex="0"
+               aria-label="Comparison position: share of the view showing Before" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% Before, 50% After">
+            <span class="compare__grip"><svg aria-hidden="true"><use href="#i-grip"/></svg></span>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="card">
+            <table class="audit__table" id="auditTable">
+              <caption>Live DOM audit
+                <small>Computed with <code>getComputedStyle</code> over every element in each pane. Re-runs when you change the theme.</small>
+              </caption>
+              <thead><tr><th scope="col">Metric</th><th scope="col" class="num">Before</th><th scope="col" class="num">After</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="card audit__list">
+            <h3>What the agent got wrong without AegisUI</h3>
+            <ul>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Status shown by <strong>color alone</strong>, which color-blind users can't read</span></li>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Placeholder used as the <strong>only label</strong> on search</span></li>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Four <strong>number formats</strong> in one column, all left-unaligned</span></li>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Clickable <code>&lt;span&gt;</code> with no keyboard access</span></li>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Hard-coded colors that <strong>ignore dark mode</strong> (switch theme to see it)</span></li>
+              <li><svg aria-hidden="true"><use href="#i-x"/></svg><span>Vague CTA ("Click Here!") and an alert with no specifics</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ROI ================= -->
+    <section class="section" id="roi" aria-labelledby="roi-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">02 · ROI &amp; token model</span>
+          <h2 id="roi-title">What the regeneration loop costs your team.</h2>
+          <p>Every input is editable. Inputs marked <span class="assumption-flag">Assumption</span> are planning estimates, not measured results. Replace them with numbers from your own pilot.</p>
+        </div>
+
+        <div class="toolbar" role="group" aria-label="Team size presets">
+          <span class="hint">Presets:</span>
+          <button class="chip" type="button" data-preset="startup" aria-pressed="false">Startup · 8 eng</button>
+          <button class="chip" type="button" data-preset="scaleup" aria-pressed="true">Scale-up · 40 eng</button>
+          <button class="chip" type="button" data-preset="enterprise" aria-pressed="false">Enterprise · 250 eng</button>
+        </div>
+
+        <div class="roi">
+          <form class="card roi__inputs" id="roiForm" onsubmit="return false">
+            <div class="roi__group" id="roiGroupTeam"><div class="roi__group-title">Your team</div></div>
+            <div class="roi__group" id="roiGroupTokens"><div class="roi__group-title">Model usage</div></div>
+            <div class="roi__group" id="roiGroupImpact"><div class="roi__group-title">AegisUI impact</div></div>
+          </form>
+
+          <div class="roi__results">
+            <div class="card roi__hero" aria-live="polite">
+              <div class="roi__hero-label">Modeled net annual value</div>
+              <div class="roi__hero-value" id="roiNet">–</div>
+              <div class="roi__hero-sub" id="roiNetSub">–</div>
+            </div>
+            <div class="kpis">
+              <div class="card kpi"><div class="kpi__label">Engineering hours reclaimed</div><div class="kpi__value" id="roiHours">–</div><div class="kpi__note" id="roiHoursNote">per year</div></div>
+              <div class="card kpi"><div class="kpi__label">Tokens avoided</div><div class="kpi__value" id="roiTokens">–</div><div class="kpi__note" id="roiTokensNote">per year, net of added context</div></div>
+              <div class="card kpi"><div class="kpi__label">Payback period</div><div class="kpi__value" id="roiPayback">–</div><div class="kpi__note">on the one-time setup effort</div></div>
+            </div>
+            <div class="roi__charts">
+              <figure class="card chart" id="chartTokens" style="margin:0">
+                <h3>Annual model spend</h3>
+                <p class="chart__sub">Includes the extra context tokens AegisUI adds to each call</p>
+                <svg viewBox="0 0 320 112" role="img" aria-labelledby="chartTokensDesc"><desc id="chartTokensDesc">Bar chart comparing annual model spend with and without AegisUI.</desc></svg>
+                <div class="tooltip" role="presentation"></div>
+              </figure>
+              <figure class="card chart" id="chartLabor" style="margin:0">
+                <h3>Annual review &amp; rework cost</h3>
+                <p class="chart__sub">Engineer and designer hours spent fixing generated UI</p>
+                <svg viewBox="0 0 320 112" role="img" aria-labelledby="chartLaborDesc"><desc id="chartLaborDesc">Bar chart comparing annual rework cost with and without AegisUI.</desc></svg>
+                <div class="tooltip" role="presentation"></div>
+              </figure>
+            </div>
+            <details class="card roi__details">
+              <summary>Show the math &amp; data table</summary>
+              <table id="roiTable">
+                <thead><tr><th scope="col">Line item (per year)</th><th scope="col" class="num">Without AegisUI</th><th scope="col" class="num">With AegisUI</th><th scope="col" class="num">Delta</th></tr></thead>
+                <tbody></tbody>
+              </table>
+              <div class="formula" id="roiFormula"></div>
+              <p class="disclaimer" style="margin-top:var(--space-3)">This is a planning model, not a guarantee. Default reduction rates are illustrative assumptions. Validate them with a two-week pilot that compares regenerations per merged UI task before and after adoption.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= BLUEPRINT ================= -->
+    <section class="section" id="blueprint" aria-labelledby="bp-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">03 · Architectural blueprint</span>
+          <h2 id="bp-title">From one token file to every generated screen.</h2>
+          <p>Select a node to see its responsibilities and artifacts. Press <strong>Trace a change</strong> to follow one token edit through the agent, the guardrails and back.</p>
+        </div>
+        <div class="toolbar" role="group" aria-label="Filter blueprint layers">
+          <button class="btn btn--primary btn--sm" id="bpTrace" type="button"><svg aria-hidden="true"><use href="#i-play"/></svg>Trace a change</button>
+          <span class="toolbar__spacer"></span>
+          <button class="chip" type="button" data-layer="all" aria-pressed="true">All layers</button>
+          <button class="chip" type="button" data-layer="source" aria-pressed="false">Source</button>
+          <button class="chip" type="button" data-layer="build" aria-pressed="false">Build</button>
+          <button class="chip" type="button" data-layer="rules" aria-pressed="false">Rules</button>
+          <button class="chip" type="button" data-layer="agent" aria-pressed="false">Agent</button>
+          <button class="chip" type="button" data-layer="governance" aria-pressed="false">Governance</button>
+        </div>
+        <div class="bp" id="bp">
+          <div class="card bp__canvas">
+            <svg class="bp__svg" id="bpSvg" viewBox="0 0 1220 475" role="group" aria-label="AegisUI architecture diagram"></svg>
+            <p class="bp__caption" id="bpCaption" aria-live="polite"></p>
+          </div>
+          <aside class="card bp__panel" id="bpPanel" aria-live="polite"></aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= GUIDE ================= -->
+    <section class="section" id="guide" aria-labelledby="guide-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">04 · Implementation guide</span>
+          <h2 id="guide-title">Wire your design system into an AI agent in six steps.</h2>
+          <p>Each step includes copy-ready files. Step 3 builds a <code>CLAUDE.md</code> for you. Your progress is saved in this browser.</p>
+        </div>
+        <div class="guide">
+          <div class="card guide__nav">
+            <div class="guide__progress">
+              <div class="guide__progress-text" id="guideProgressText">0 of 6 complete</div>
+              <div class="guide__progress-bar"><span id="guideProgressBar"></span></div>
+            </div>
+            <ol class="guide__steps" role="tablist" aria-label="Guide steps" id="guideTabs"></ol>
+          </div>
+          <div class="card" id="guidePanels"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SHARE ================= -->
+    <section class="section" id="share" aria-labelledby="share-title">
+      <div class="container">
+        <div class="section__head">
+          <span class="eyebrow">05 · Ready-to-share</span>
+          <h2 id="share-title">Social preview cards, rendered from this page.</h2>
+          <p>Each card is drawn on a canvas at its platform's native size. The ROI card reads the calculator above, so change the inputs and the card updates. Edit the caption, then copy it or download the PNG.</p>
+        </div>
+        <div class="social" id="socialGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <span>AegisUI · UX engineering case study. Built with HTML, CSS and vanilla JS on the tokens it describes.</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="showcase.js"></script>
+</body>
+</html>
