@@ -63,6 +63,8 @@ Exact preset values remain in `presets/tokens/<id>.json`.
 
 **Old exports are preserved.** Studio still exports `variables.css` (`--<prefix>-*`, light/dark, reduced motion) and the W3C DTCG `tokens.json` unchanged. The canonical document is an *additional* export, `aegis-tokens.json`, also bundled in the zip as `tokens/aegis-tokens.json`.
 
+**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for Phase 2 modules (Playground, Simulator, CLI, Launch Kit). Links to those modules are added only once their pages exist.
+
 ### Active token baseline
 
 Whenever Studio settings change, the Studio writes the canonical document and its own `--<prefix>-*` variables to `localStorage` (`aegis:active-tokens:v1`). The Auditor and Figma Bridge read it and refresh when another tab changes it. Corrupt or invalid records are ignored with a visible notice, never trusted.
@@ -172,5 +174,6 @@ presets/                     Preset Vault, themes, build, schema, tokens, CSS
 figma-plugin/                Token Sync plugin (manifest, code.js, ui.html) + Figma Bridge help page
 showcase/                    Case study
 shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation)
+docs/                        INTEGRATION.md: stable bridge API, storage key and navigation hook for new modules
 tests/                       contract tests, browser tests, sub-path static server
 ```

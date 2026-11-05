@@ -33,6 +33,10 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
+  /* Stable bridge API. Additive changes bump the minor version; renaming or
+   * removing any exported member, the storage key or the record shape is a
+   * breaking change (bump major and the key suffix). See docs/INTEGRATION.md. */
+  var API_VERSION = '1.0.0';
   var FORMAT = 'aegis-tokens';
   var VERSION = '1.0.0';
   var SUPPORTED_MAJOR = 1;
@@ -654,7 +658,7 @@
   }
 
   return {
-    FORMAT: FORMAT, VERSION: VERSION, BASELINE_KEY: BASELINE_KEY,
+    API_VERSION: API_VERSION, FORMAT: FORMAT, VERSION: VERSION, BASELINE_KEY: BASELINE_KEY, BASELINE_SCHEMA: BASELINE_SCHEMA,
     isAlias: isAlias, getPath: getPath, walk: walk, resolve: resolve, resolvePath: resolvePath, toHex8: toHex8,
     fromStudio: fromStudio, toStudioState: toStudioState,
     validateForPlugin: validateForPlugin, validateSchema: validateSchema,

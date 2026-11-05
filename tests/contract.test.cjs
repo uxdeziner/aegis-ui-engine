@@ -208,6 +208,17 @@ function fakeStorage(opts = {}) {
     delete global.localStorage;
   });
 
+  await test('bridge API surface and storage constants are stable (docs/INTEGRATION.md)', () => {
+    assert.strictEqual(K.API_VERSION.split('.')[0], '1');
+    assert.strictEqual(K.BASELINE_KEY, 'aegis:active-tokens:v1');
+    assert.strictEqual(K.BASELINE_SCHEMA, 'aegis-active-tokens@1');
+    assert.strictEqual(K.FORMAT, 'aegis-tokens');
+    ['readBaseline', 'parseBaseline', 'writeBaseline', 'clearBaseline', 'onBaselineChange', 'validateForPlugin', 'validateSchema', 'flatten',
+      'resolve', 'resolvePath', 'fromStudio', 'toStudioState', 'walk', 'getPath', 'isAlias', 'toHex8'].forEach((n) => assert.strictEqual(typeof K[n], 'function', 'missing export ' + n));
+    const doc = fs.readFileSync(path.join(root, 'docs', 'INTEGRATION.md'), 'utf8');
+    [K.BASELINE_KEY, K.BASELINE_SCHEMA, 'API_VERSION', 'aegis-nav:future-modules'].forEach((n) => assert.ok(doc.includes(n), 'docs/INTEGRATION.md does not mention ' + n));
+  });
+
   console.log(`\n${failures ? failures + ' failed, ' : ''}${passes} contract checks passed in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   process.exit(failures ? 1 : 0);
 })();
