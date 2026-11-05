@@ -239,7 +239,7 @@ kbd {
   flex: 1; min-height: 0;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(340px, 420px);
   gap: 1px; background: var(--color-border);
-  height: calc(100vh - 4.25rem);
+  height: calc(100vh - 4.25rem - var(--aegis-nav-h, 0px));
 }
 .pane { background: var(--color-bg-elev); display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .pane-head {
@@ -399,6 +399,13 @@ kbd {
 /* ---------- Report ---------- */
 .report-scroll { flex: 1; min-height: 0; overflow: auto; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
 .pane-report:focus { outline: none; }
+.baseline { display: grid; gap: var(--space-1); padding: var(--space-3); margin-block-end: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md, 8px); background: var(--color-surface); }
+.baseline [hidden] { display: none !important; }
+.baseline-row { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.baseline-label { font: 700 var(--text-2xs) / 1.4 var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+.baseline-select { min-block-size: 2rem; padding-inline: var(--space-2); border: 1px solid var(--color-border-strong, var(--color-border)); border-radius: var(--radius-sm, 6px); background: var(--color-bg-elev); color: var(--color-text); font: inherit; }
+.baseline-info { font-size: var(--text-2xs); color: var(--color-text-muted); }
+body[data-baseline="corrupt"] .baseline { border-color: var(--color-warning, var(--color-border)); }
 .score-hero { display: flex; align-items: center; gap: var(--space-4); }
 .score-ring { position: relative; inline-size: 7.5rem; block-size: 7.5rem; flex: none; }
 .score-ring svg { inline-size: 100%; block-size: 100%; transform: rotate(-90deg); }

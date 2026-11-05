@@ -1,0 +1,104 @@
+/* AegisUI · shared module navigation
+ * One static <nav class="aegis-nav"> bar on every page (Studio, Auditor,
+ * Preset Vault, Figma Bridge, Showcase). The bar keeps its own look on
+ * every page, whatever theme the page itself uses. Class names and custom
+ * properties are prefixed so they never collide with module tokens.
+ * The active page carries aria-current="page", shown by weight, a filled
+ * pill and an underline, so the state never depends on colour alone (WCAG 1.4.1).
+ */
+:root { --aegis-nav-h: 2.75rem; }
+
+.aegis-nav {
+  --anav-bg: #0b0e10;
+  --anav-line: #262d33;
+  --anav-text: #c9d2d8;
+  --anav-text-strong: #f3f6f8;
+  --anav-hover: #1b2126;
+  --anav-current: #232b31;
+  --anav-accent: #e3b04f;
+  --anav-focus: #f2c46d;
+  position: relative;
+  z-index: 60;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--aegis-nav-h);
+  margin: 0;
+  padding-block: 0.25rem;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px)) max(1rem, env(safe-area-inset-right, 0px));
+  background: var(--anav-bg);
+  color: var(--anav-text);
+  border-bottom: 1px solid var(--anav-line);
+  font: 500 0.8125rem/1.2 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+  color-scheme: dark;
+}
+.aegis-nav *, .aegis-nav *::before, .aegis-nav *::after { box-sizing: border-box; }
+.aegis-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  color: var(--anav-text-strong);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+}
+.aegis-nav__brand svg { width: 1.125rem; height: 1.125rem; fill: var(--anav-accent); flex: none; }
+.aegis-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.aegis-nav__list::-webkit-scrollbar { display: none; }
+.aegis-nav__list li { margin: 0; padding: 0; flex: none; }
+.aegis-nav__list a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;            /* ≥ 24 × 24 px target (WCAG 2.5.8) */
+  padding: 0 0.7rem;
+  border-radius: 0.375rem;
+  color: var(--anav-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.aegis-nav__list a:hover { background: var(--anav-hover); color: var(--anav-text-strong); }
+.aegis-nav__list a:focus-visible { outline: 2px solid var(--anav-focus); outline-offset: 2px; }
+.aegis-nav__list a[aria-current="page"] {
+  background: var(--anav-current);
+  color: var(--anav-text-strong);
+  font-weight: 700;
+}
+.aegis-nav__list a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--anav-accent);
+}
+@media (max-width: 560px) {
+  .aegis-nav { gap: 0.5rem; align-items: flex-start; }
+  .aegis-nav__brand { min-height: 2rem; }
+  .aegis-nav__list { flex-wrap: wrap; overflow: visible; row-gap: 0.125rem; }
+  .aegis-nav__brand span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .aegis-nav__list a { padding: 0 0.55rem; }
+}
+@media (prefers-reduced-motion: reduce) { .aegis-nav__list a { transition: none; } }
+@media (forced-colors: active) {
+  .aegis-nav { border-bottom-color: CanvasText; }
+  .aegis-nav__list a[aria-current="page"] { outline: 2px solid LinkText; }
+  .aegis-nav__list a[aria-current="page"]::after { background: LinkText; }
+}

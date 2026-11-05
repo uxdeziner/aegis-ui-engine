@@ -9,10 +9,23 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z' fill='%23d9a441'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/studio.css">
   <link rel="stylesheet" href="css/preview.css">
+  <link rel="stylesheet" href="shared/aegis-nav.css">
   <style id="ae-live-tokens"></style>
 </head>
 <body>
   <a class="skip-link" href="#workspace">Skip to workspace</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="index.html" aria-current="page">Studio</a></li>
+      <li><a href="auditor/auditor.html">Auditor</a></li>
+      <li><a href="presets/index.html">Preset Vault</a></li>
+      <li><a href="figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="showcase/showcase.html">Showcase</a></li>
+      <!-- aegis-nav:future-modules — Phase 2 modules (Playground, Simulator, CLI, Launch Kit) add their <li> here once their pages exist. See docs/INTEGRATION.md#navigation. -->
+    </ul>
+  </nav>
 
   <header class="topbar">
     <div class="brand">
@@ -335,6 +348,8 @@
   <script src="js/compiler.js"></script>
   <script src="js/zip.js"></script>
   <script src="js/preview.js"></script>
+  <script src="presets/aegis-presets.js"></script>
+  <script src="shared/aegis-contract.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

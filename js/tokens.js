@@ -116,7 +116,20 @@
     ['primary', 'neutral', 'success', 'warning', 'danger', 'info'].forEach((k) => { s.color[k] = hex(ic[k], s.color[k]); });
     s.color.neutralTint = num(ic.neutralTint, s.color.neutralTint, 0, 100);
     const it = input.type || {};
-    ['heading', 'body', 'mono'].forEach((k) => { if (FONT_STACKS[it[k]]) s.type[k] = it[k]; });
+    // Optional font stacks carried over from a preset (value "custom" selects them).
+    const ic2 = it.custom && typeof it.custom === 'object' ? it.custom : {};
+    s.type.custom = {};
+    ['heading', 'body', 'mono'].forEach((k) => {
+      const c = ic2[k];
+      if (c && typeof c.label === 'string' && Array.isArray(c.stack) && c.stack.length) {
+        const stack = c.stack.filter((f) => typeof f === 'string' && f.trim() && f.length <= 60 && !/[;{}<>"\\]/.test(f)).map((f) => f.trim()).slice(0, 12);
+        if (stack.length) s.type.custom[k] = { label: c.label.slice(0, 60).replace(/[<>]/g, ''), stack };
+      }
+    });
+    ['heading', 'body', 'mono'].forEach((k) => {
+      if (FONT_STACKS[it[k]]) s.type[k] = it[k];
+      else if (it[k] === 'custom' && s.type.custom[k]) s.type[k] = 'custom';
+    });
     s.type.base = num(it.base, s.type.base, 12, 22);
     s.type.ratio = num(it.ratio, s.type.ratio, 1.05, 1.7);
     s.type.lineHeight = num(it.lineHeight, s.type.lineHeight, 1.2, 1.9);
@@ -132,8 +145,14 @@
     } else if (EASINGS[s.motion.easing].curve) {
       s.motion.curve = EASINGS[s.motion.easing].curve.slice();
     }
+    const src = input.source;
+    if (src && typeof src === 'object' && /^[a-z0-9-]{1,40}$/.test(src.presetId || '')) {
+      s.source = { presetId: src.presetId, presetName: typeof src.presetName === 'string' ? src.presetName.slice(0, 60) : src.presetId, defaultMode: src.defaultMode === 'dark' ? 'dark' : 'light' };
+    }
     return s;
   }
+
+  const fontFor = (t, role) => (t[role] === 'custom' && t.custom && t.custom[role]) ? t.custom[role] : (FONT_STACKS[t[role]] || FONT_STACKS[role === 'mono' ? 'mono-code' : 'system-sans']);
 
   /* ---------------- Resolution helpers ---------------- */
   const STOPS = C.STOPS;
@@ -287,7 +306,7 @@
       return { name, step: n, px, rem: Math.round((px / 16) * 10000) / 10000, lineHeight: lh, tracking };
     });
     const typography = {
-      families: { heading: FONT_STACKS[t.heading], body: FONT_STACKS[t.body], mono: FONT_STACKS[t.mono] },
+      families: { heading: fontFor(t, 'heading'), body: fontFor(t, 'body'), mono: fontFor(t, 'mono') },
       sizes,
       weights: { regular: 400, medium: 500, semibold: 600, bold: 700, heading: Math.round(t.headingWeight) },
       ratio: t.ratio,
