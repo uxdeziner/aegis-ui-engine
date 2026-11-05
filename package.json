@@ -1,0 +1,14 @@
+{
+  "name": "aegis-ui-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AegisUI — enterprise design-system presets and a Figma token-sync plugin. Pure vanilla JS/CSS, zero dependencies.",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "node presets/build/build.mjs",
+    "build:strict": "node presets/build/build.mjs --strict",
+    "test": "node presets/build/build.mjs --strict && node figma-plugin/test/run.cjs",
+    "test:plugin": "node figma-plugin/test/run.cjs"
+  }
+}

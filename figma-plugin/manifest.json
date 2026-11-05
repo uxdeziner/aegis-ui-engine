@@ -1,0 +1,13 @@
+{
+  "name": "AegisUI Token Sync",
+  "id": "aegisui-token-sync",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "All presets are bundled in ui.html and user JSON is read locally; the plugin makes no network requests."
+  }
+}

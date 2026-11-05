@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegisui.dev/schema/aegis-tokens/1.0.0.json",
+  "title": "AegisUI Token Document",
+  "description": "Interchange format between AegisUI Studio, the preset build and the AegisUI Figma plugin. DTCG-inspired: leaves carry $type and either $value (mode-independent) or $modes (one value per entry in `modes`). String values wrapped in braces, e.g. \"{primitive.color.brand.600}\", are aliases to another token path under `tokens`. Dimensions are unitless numbers in px; letter spacing and `number` tokens are em.",
+  "type": "object",
+  "required": ["aegis", "meta", "modes", "tokens"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "aegis": {
+      "type": "object",
+      "required": ["format", "version"],
+      "properties": {
+        "format": { "const": "aegis-tokens" },
+        "version": { "type": "string", "pattern": "^1\\.\\d+\\.\\d+$" },
+        "generator": { "type": "string" }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "defaultMode": { "enum": ["light", "dark"] },
+        "density": { "enum": ["compact", "default", "comfortable", "accessible"] },
+        "a11yTarget": { "enum": ["AA", "AAA"] },
+        "fonts": {
+          "type": "object",
+          "properties": {
+            "googleFontsUrl": { "type": "string", "format": "uri" },
+            "families": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["family"],
+                "properties": { "family": { "type": "string" }, "weights": { "type": "array", "items": { "type": "integer" } } }
+              }
+            }
+          }
+        },
+        "swatches": { "type": "object", "additionalProperties": { "type": "array", "items": { "$ref": "#/$defs/hex" } } }
+      }
+    },
+    "modes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "contains": { "const": "light" } },
+    "tokens": {
+      "type": "object",
+      "required": ["primitive", "semantic"],
+      "properties": {
+        "primitive": { "$ref": "#/$defs/group", "description": "Raw palette — color ramps (50…950, neutral adds 1000), white, black." },
+        "semantic": { "$ref": "#/$defs/group", "description": "Role tokens with $modes (bg, fg, border, brand, accent, success, warning, danger, info, data)." },
+        "dimension": { "$ref": "#/$defs/group", "description": "spacing, radius, borderWidth, size — px numbers." },
+        "typography": { "$ref": "#/$defs/group", "description": "fontFamily, fontWeight and textStyle composites." },
+        "shadow": { "$ref": "#/$defs/group", "description": "Moded arrays of shadow layers." },
+        "motion": { "$ref": "#/$defs/group", "description": "duration (ms) and easing (cubic-bezier)." },
+        "component": { "$ref": "#/$defs/group", "description": "Component recipes — mostly aliases into the groups above." }
+      }
+    },
+    "a11y": {
+      "type": "object",
+      "properties": {
+        "target": { "enum": ["AA", "AAA"] },
+        "pass": { "type": "boolean" },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["mode", "fg", "bg", "ratio", "min", "pass"],
+            "properties": { "mode": { "type": "string" }, "fg": { "type": "string" }, "bg": { "type": "string" }, "ratio": { "type": "number" }, "min": { "type": "number" }, "pass": { "type": "boolean" } }
+          }
+        },
+        "adjustments": { "type": "array" },
+        "exemptions": { "type": "array", "items": { "type": "object", "required": ["pair", "reason"], "properties": { "pair": { "type": "string" }, "reason": { "type": "string" } } } }
+      }
+    }
+  },
+  "$defs": {
+    "hex": { "type": "string", "pattern": "^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$" },
+    "alias": { "type": "string", "pattern": "^\\{[A-Za-z0-9_.-]+\\}$" },
+    "shadowLayer": {
+      "type": "object",
+      "required": ["x", "y", "blur", "spread", "color"],
+      "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "blur": { "type": "number" }, "spread": { "type": "number" }, "color": { "$ref": "#/$defs/hex" } }
+    },
+    "textStyle": {
+      "type": "object",
+      "required": ["fontFamily", "fontWeight", "fontSize", "lineHeight", "letterSpacing", "textTransform"],
+      "properties": {
+        "fontFamily": { "$ref": "#/$defs/alias" },
+        "fontWeight": { "type": "integer", "minimum": 100, "maximum": 900 },
+        "fontSize": { "type": "number" },
+        "lineHeight": { "type": "number" },
+        "letterSpacing": { "type": "number", "description": "em" },
+        "textTransform": { "enum": ["none", "uppercase", "lowercase", "capitalize"] },
+        "fontFeatures": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "value": {
+      "anyOf": [
+        { "$ref": "#/$defs/alias" },
+        { "$ref": "#/$defs/hex" },
+        { "type": "number" },
+        { "type": "string" },
+        { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+        { "type": "array", "items": { "$ref": "#/$defs/shadowLayer" } },
+        { "$ref": "#/$defs/textStyle" }
+      ]
+    },
+    "extensions": {
+      "type": "object",
+      "properties": {
+        "aegis": {
+          "type": "object",
+          "required": ["cssVar"],
+          "properties": { "cssVar": { "type": "string", "pattern": "^--aegis-[a-z0-9-]+$" }, "stack": { "type": "string" }, "category": { "type": "string" } }
+        }
+      }
+    },
+    "token": {
+      "type": "object",
+      "required": ["$type"],
+      "properties": {
+        "$type": { "enum": ["color", "dimension", "fontFamily", "fontWeight", "typography", "shadow", "duration", "cubicBezier", "number", "string"] },
+        "$value": { "$ref": "#/$defs/value" },
+        "$modes": { "type": "object", "additionalProperties": { "$ref": "#/$defs/value" } },
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/$defs/extensions" }
+      },
+      "oneOf": [{ "required": ["$value"] }, { "required": ["$modes"] }]
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": { "anyOf": [{ "$ref": "#/$defs/token" }, { "$ref": "#/$defs/group" }] }
+    }
+  }
+}

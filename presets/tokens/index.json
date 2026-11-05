@@ -1,0 +1,691 @@
+{
+  "aegis": {
+    "format": "aegis-tokens",
+    "version": "1.0.0",
+    "generator": "aegis-presets-build"
+  },
+  "presets": [
+    {
+      "id": "enterprise-saas",
+      "name": "Enterprise SaaS",
+      "category": "Product",
+      "description": "Neutral, trustworthy indigo system for B2B admin consoles, settings-heavy apps and multi-tenant dashboards.",
+      "tags": [
+        "b2b",
+        "admin",
+        "dashboard",
+        "balanced"
+      ],
+      "defaultMode": "light",
+      "density": "default",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Inter",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "JetBrains Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f8faff",
+          "#5263e4",
+          "#006d71",
+          "#16181e"
+        ],
+        "dark": [
+          "#0b0d13",
+          "#667eff",
+          "#00a0a6",
+          "#f8faff"
+        ]
+      },
+      "file": "enterprise-saas.json"
+    },
+    {
+      "id": "fintech-terminal",
+      "name": "Fintech Terminal",
+      "category": "Finance",
+      "description": "Dark-first, ultra-dense trading workstation with amber signal color, monospaced tabular figures and hairline grids.",
+      "tags": [
+        "trading",
+        "finance",
+        "dense",
+        "dark",
+        "data"
+      ],
+      "defaultMode": "dark",
+      "density": "compact",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
+        "families": [
+          {
+            "family": "IBM Plex Sans Condensed",
+            "weights": [
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "IBM Plex Sans",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "IBM Plex Mono",
+            "weights": [
+              400,
+              500,
+              600
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f4faff",
+          "#c17a00",
+          "#006a81",
+          "#11171c"
+        ],
+        "dark": [
+          "#04090d",
+          "#df9419",
+          "#009cbd",
+          "#f4faff"
+        ]
+      },
+      "file": "fintech-terminal.json"
+    },
+    {
+      "id": "healthcare-clean",
+      "name": "Healthcare Clean",
+      "category": "Healthcare",
+      "description": "Clinical, reassuring teal system with generous whitespace, legible Lexend headings and unambiguous status colors for patient & EHR tools.",
+      "tags": [
+        "healthcare",
+        "clinical",
+        "calm",
+        "accessible"
+      ],
+      "defaultMode": "light",
+      "density": "comfortable",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Lexend",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Source Sans 3",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Source Code Pro",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f3fcfe",
+          "#006d6d",
+          "#3c76bd",
+          "#131a1b"
+        ],
+        "dark": [
+          "#080e10",
+          "#00a19d",
+          "#528ed9",
+          "#f3fcfe"
+        ]
+      },
+      "file": "healthcare-clean.json"
+    },
+    {
+      "id": "ai-studio-dark",
+      "name": "AI Studio Dark",
+      "category": "AI / Developer",
+      "description": "Deep-ink, dark-first studio for model playgrounds, prompt IDEs and copilots — luminous violet, soft glows and Geist typography.",
+      "tags": [
+        "ai",
+        "dark",
+        "playground",
+        "glow"
+      ],
+      "defaultMode": "dark",
+      "density": "default",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Geist",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Geist Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f9f9ff",
+          "#7950e5",
+          "#006d71",
+          "#16161e"
+        ],
+        "dark": [
+          "#07070d",
+          "#936aff",
+          "#01bdc4",
+          "#f9f9ff"
+        ]
+      },
+      "file": "ai-studio-dark.json"
+    },
+    {
+      "id": "swiss-editorial",
+      "name": "Swiss Editorial",
+      "category": "Editorial",
+      "description": "International Typographic Style: pure black & white, a single signal red, zero radii, heavy grotesk headlines over a literary serif.",
+      "tags": [
+        "editorial",
+        "publishing",
+        "minimal",
+        "grid"
+      ],
+      "defaultMode": "light",
+      "density": "default",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700;800&family=Source+Serif+4:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Inter Tight",
+            "weights": [
+              500,
+              600,
+              700,
+              800
+            ]
+          },
+          {
+            "family": "Source Serif 4",
+            "weights": [
+              400,
+              600
+            ]
+          },
+          {
+            "family": "IBM Plex Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#ffffff",
+          "#db000f",
+          "#030303",
+          "#030303"
+        ],
+        "dark": [
+          "#030303",
+          "#f9362f",
+          "#ffffff",
+          "#fafafa"
+        ]
+      },
+      "file": "swiss-editorial.json"
+    },
+    {
+      "id": "gov-accessible",
+      "name": "High-Contrast Gov",
+      "category": "Public sector",
+      "description": "AAA-targeted public-service system: Atkinson Hyperlegible at 19px, 48px touch targets, always-underlined links and a high-visibility black-and-yellow focus state.",
+      "tags": [
+        "government",
+        "accessibility",
+        "aaa",
+        "public-sector",
+        "high-contrast"
+      ],
+      "defaultMode": "light",
+      "density": "accessible",
+      "a11yTarget": "AAA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap",
+        "families": [
+          {
+            "family": "Atkinson Hyperlegible",
+            "weights": [
+              400,
+              700
+            ]
+          },
+          {
+            "family": "IBM Plex Mono",
+            "weights": [
+              400,
+              600
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#ffffff",
+          "#164990",
+          "#005b39",
+          "#050608"
+        ],
+        "dark": [
+          "#050608",
+          "#9dc5ff",
+          "#55be8b",
+          "#ffffff"
+        ]
+      },
+      "file": "gov-accessible.json"
+    },
+    {
+      "id": "retail-commerce",
+      "name": "Retail Commerce",
+      "category": "Commerce",
+      "description": "Warm, conversion-tuned commerce system: coral call-to-action, pill buttons, editorial serif display and deep evergreen for trust & savings.",
+      "tags": [
+        "ecommerce",
+        "storefront",
+        "merchant",
+        "warm"
+      ],
+      "defaultMode": "light",
+      "density": "comfortable",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "DM Serif Display",
+            "weights": [
+              400
+            ]
+          },
+          {
+            "family": "DM Sans",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "DM Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#fff9f5",
+          "#ca3927",
+          "#216e52",
+          "#1b1715"
+        ],
+        "dark": [
+          "#100c0a",
+          "#e85339",
+          "#489f7d",
+          "#fff9f5"
+        ]
+      },
+      "file": "retail-commerce.json"
+    },
+    {
+      "id": "legal-slate",
+      "name": "Legal & Compliance Slate",
+      "category": "Legal / Risk",
+      "description": "Authoritative slate system for contract lifecycle, GRC and audit tools — ink navy, oxblood accent, Source Serif headings and restrained geometry.",
+      "tags": [
+        "legal",
+        "compliance",
+        "grc",
+        "audit",
+        "serif"
+      ],
+      "defaultMode": "light",
+      "density": "default",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Source Serif 4",
+            "weights": [
+              400,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Source Sans 3",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Source Code Pro",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f6fbff",
+          "#2d4c79",
+          "#983c48",
+          "#080e13"
+        ],
+        "dark": [
+          "#03070b",
+          "#a5c5f3",
+          "#d36470",
+          "#f6fbff"
+        ]
+      },
+      "file": "legal-slate.json"
+    },
+    {
+      "id": "developer-console",
+      "name": "Developer Console",
+      "category": "AI / Developer",
+      "description": "Monospace-forward infrastructure console: JetBrains Mono headings and labels, phosphor-green signal, terminal-grade dark mode and crisp 6px geometry.",
+      "tags": [
+        "developer",
+        "infra",
+        "cli",
+        "monospace",
+        "dark"
+      ],
+      "defaultMode": "dark",
+      "density": "compact",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap",
+        "families": [
+          {
+            "family": "JetBrains Mono",
+            "weights": [
+              400,
+              500,
+              600,
+              700,
+              800
+            ]
+          },
+          {
+            "family": "Inter",
+            "weights": [
+              400,
+              500,
+              600
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f6fcf8",
+          "#007239",
+          "#007fa9",
+          "#141816"
+        ],
+        "dark": [
+          "#070a08",
+          "#49c268",
+          "#0099ca",
+          "#f6fcf8"
+        ]
+      },
+      "file": "developer-console.json"
+    },
+    {
+      "id": "logistics-ops",
+      "name": "Logistics Ops",
+      "category": "Operations",
+      "description": "Industrial, glanceable operations system for fleet, warehouse and supply-chain control towers — steel blue, safety orange, condensed display type.",
+      "tags": [
+        "logistics",
+        "operations",
+        "industrial",
+        "dense",
+        "control-tower"
+      ],
+      "defaultMode": "light",
+      "density": "compact",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Barlow Condensed",
+            "weights": [
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Barlow",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Roboto Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#eaf6fd",
+          "#00649f",
+          "#da6600",
+          "#111a1f"
+        ],
+        "dark": [
+          "#070e13",
+          "#2193e0",
+          "#f78234",
+          "#f5fbff"
+        ]
+      },
+      "file": "logistics-ops.json"
+    },
+    {
+      "id": "creative-agency",
+      "name": "Creative Agency Bold",
+      "category": "Brand / Marketing",
+      "description": "Neo-brutalist, high-energy system for agencies and campaign tools — acid lime, hot pink, hard offset shadows, thick ink borders and Syne display.",
+      "tags": [
+        "creative",
+        "brutalist",
+        "bold",
+        "marketing"
+      ],
+      "defaultMode": "light",
+      "density": "comfortable",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap",
+        "families": [
+          {
+            "family": "Syne",
+            "weights": [
+              600,
+              700,
+              800
+            ]
+          },
+          {
+            "family": "Space Grotesk",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Space Mono",
+            "weights": [
+              400,
+              700
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#f3f3ee",
+          "#abf200",
+          "#d0007b",
+          "#050403"
+        ],
+        "dark": [
+          "#050403",
+          "#abf200",
+          "#ff68ac",
+          "#fbfaf6"
+        ]
+      },
+      "file": "creative-agency.json"
+    },
+    {
+      "id": "wellness-hr",
+      "name": "Calm Wellness & HR",
+      "category": "People / HR",
+      "description": "Soft, human system for HR, benefits and wellbeing platforms — sage and peach on warm paper, Fraunces display, rounded 16px geometry and gentle motion.",
+      "tags": [
+        "hr",
+        "people",
+        "wellness",
+        "soft",
+        "friendly"
+      ],
+      "defaultMode": "light",
+      "density": "comfortable",
+      "a11yTarget": "AA",
+      "fonts": {
+        "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+        "families": [
+          {
+            "family": "Fraunces",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "Manrope",
+            "weights": [
+              400,
+              500,
+              600,
+              700
+            ]
+          },
+          {
+            "family": "JetBrains Mono",
+            "weights": [
+              400,
+              500
+            ]
+          }
+        ]
+      },
+      "swatches": {
+        "light": [
+          "#fefaf3",
+          "#316c53",
+          "#af592e",
+          "#1c1914"
+        ],
+        "dark": [
+          "#110e09",
+          "#5b9c7a",
+          "#cc7044",
+          "#fefaf3"
+        ]
+      },
+      "file": "wellness-hr.json"
+    }
+  ]
+}
