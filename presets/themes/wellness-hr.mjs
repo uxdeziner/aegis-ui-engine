@@ -1,0 +1,48 @@
+// Calm Wellness / HR — soft sage & peach for people, benefits and wellbeing platforms.
+export default {
+  id: 'wellness-hr',
+  order: 12,
+  name: 'Calm Wellness & HR',
+  category: 'People / HR',
+  description: 'Soft, human system for HR, benefits and wellbeing platforms — sage and peach on warm paper, Fraunces display, rounded 16px geometry and gentle motion.',
+  tags: ['hr', 'people', 'wellness', 'soft', 'friendly'],
+  defaultMode: 'light',
+  density: 'comfortable',
+  fonts: {
+    display: { family: 'Fraunces', weights: [400, 500, 600, 700], category: 'serif' },
+    body: { family: 'Manrope', weights: [400, 500, 600, 700] },
+    mono: { family: 'JetBrains Mono', weights: [400, 500], category: 'mono' },
+  },
+  palette: {
+    neutral: { h: 80, c: 0.01, lightness: [0.985, 0.965, 0.928, 0.872, 0.72, 0.565, 0.455, 0.375, 0.285, 0.215, 0.165] },
+    brand: { h: 160, c: 0.085, hueShift: 8 },
+    accent: { h: 45, c: 0.13 },
+    success: { h: 150, c: 0.12 },
+    warning: { h: 75, c: 0.14 },
+    danger: { h: 22, c: 0.17 },
+    info: { h: 235, c: 0.1 },
+    lavender: { h: 295, c: 0.1 },
+  },
+  data: ['brand', 'accent', 'lavender', 'info', 'warning', 'danger'],
+  semantic: {
+    light: { 'bg.canvas': 'neutral.50', 'brand.default': 'brand.700', 'fg.link': 'brand.700', 'bg.selected': 'brand.100' },
+  },
+  type: {
+    scale: 'comfortable',
+    headingFamily: 'display',
+    weights: { display: 500, heading: 600, label: 600 },
+    tracking: { display: -0.025, heading: -0.015 },
+    lineHeights: { body: 1.6, display: 1.1 },
+  },
+  radius: { xs: 6, sm: 8, md: 12, lg: 16, xl: 22, '2xl': 28 },
+  shadow: 'soft',
+  motion: { durations: { fast: 160, base: 260, slow: 400 }, easings: { standard: [0.4, 0, 0.2, 1] } },
+  components: {
+    button: { radius: ['dimension', '{dimension.radius.full}'] },
+    input: { radius: ['dimension', '{dimension.radius.md}'] },
+    card: { radius: ['dimension', '{dimension.radius.xl}'], shadow: ['shadow', '{shadow.sm}'], 'border-width': ['dimension', 0] },
+    modal: { radius: ['dimension', '{dimension.radius.2xl}'] },
+    nav: { 'item-radius': ['dimension', '{dimension.radius.full}'] },
+    tabs: { 'indicator-height': ['dimension', 3] },
+  },
+};
