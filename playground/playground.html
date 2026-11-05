@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-aegis-mode="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisUI Playground</title>
+  <meta name="description" content="Prompt-to-Component Sandbox: 39 copy-ready, token-driven enterprise components with live preview, copy HTML/CSS/JS and AI prompts that enforce AegisUI design tokens.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z' fill='%235263e4'/%3E%3Cpath d='m8.5 12 2.5 2.5 4.5-5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <!-- Relative paths only: works from file://, a local server and GitHub Pages (/aegis-ui-engine/playground/). -->
+  <link rel="stylesheet" href="../presets/aegis-presets.css">
+  <link rel="stylesheet" href="../presets/aegis-components.css">
+  <link rel="stylesheet" href="fallback-tokens.css">
+  <link rel="stylesheet" href="playground.css">
+  <script>
+    /* Pre-paint: apply a stored/URL preset before first render to avoid a theme flash.
+       playground.js validates it against the registry and corrects it if needed. */
+    (function () {
+      try {
+        var d = document.documentElement, p = new URLSearchParams(location.search), id = p.get('preset'), mode = p.get('mode');
+        if (!id) {
+          var shared = localStorage.getItem('aegisui:active-preset'), own = JSON.parse(localStorage.getItem('aegisui:playground:v1') || 'null');
+          if (shared) { try { var s = JSON.parse(shared); id = typeof s === 'string' ? s : s && s.id; mode = mode || (s && s.mode); } catch (e) { id = shared; } }
+          if (!id && own) { id = own.preset; mode = mode || own.mode; }
+        }
+        if (id && /^[a-z0-9-]{2,40}$/.test(id)) d.setAttribute('data-aegis-theme', id);
+        if (mode === 'light' || mode === 'dark' || mode === 'auto') d.setAttribute('data-aegis-mode', mode);
+      } catch (e) { /* storage unavailable: defaults apply */ }
+    })();
+  </script>
+</head>
+<body class="ae-root pg">
+  <a class="pg-skip" href="#pg-main">Skip to workspace</a>
+
+  <header class="pg-top">
+    <a class="pg-brand" href="../index.html" title="AegisUI home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="currentColor" opacity=".18"/><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><strong>AegisUI</strong> Playground</span>
+    </a>
+    <div class="pg-top__controls">
+      <label class="pg-field-inline"><span class="pg-label">Preset</span>
+        <select class="ae-select pg-preset" id="pg-preset" aria-describedby="pg-preset-note"></select>
+      </label>
+      <div class="pg-seg" role="radiogroup" aria-label="Color mode" id="pg-mode">
+        <label><input type="radio" name="pg-mode" value="light">Light</label>
+        <label><input type="radio" name="pg-mode" value="dark">Dark</label>
+        <label><input type="radio" name="pg-mode" value="auto">Auto</label>
+      </div>
+    </div>
+    <p class="pg-preset-note" id="pg-preset-note" role="status"></p>
+  </header>
+
+  <section class="pg-prompt" aria-labelledby="pg-prompt-title">
+    <form class="pg-prompt__form" id="pg-prompt-form">
+      <label class="pg-prompt__label" for="pg-prompt-input" id="pg-prompt-title">Prompt to component</label>
+      <div class="pg-prompt__row">
+        <textarea class="ae-textarea pg-prompt__input" id="pg-prompt-input" rows="2" placeholder="Describe what you need, e.g. “editable table of invoices with inline status changes” or “kanban board for support tickets”" aria-describedby="pg-prompt-help"></textarea>
+        <button class="ae-btn ae-btn--primary" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2 5.5L19.5 10.5 14 12.5 12 18l-2-5.5L4.5 10.5 10 8.5z"/></svg>Match &amp; build prompt
+        </button>
+      </div>
+      <p class="ae-help" id="pg-prompt-help">We match your description to the closest template, then write an AI prompt with your request, the reference code and this preset's token rules.</p>
+      <div class="pg-matches" id="pg-matches" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <div class="pg-layout">
+    <aside class="pg-lib" aria-labelledby="pg-lib-title">
+      <div class="pg-lib__head">
+        <h2 class="ae-text-label-lg" id="pg-lib-title">Templates <span class="ae-badge" id="pg-count">0</span></h2>
+        <button class="ae-btn ae-btn--sm pg-lib__toggle" type="button" aria-expanded="false" aria-controls="pg-lib-body" id="pg-lib-toggle">Browse</button>
+      </div>
+      <div class="pg-lib__body" id="pg-lib-body">
+        <label class="ae-input-group pg-lib__search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="ae-input" type="search" id="pg-search" placeholder="Search templates  ( / )" aria-label="Search templates" autocomplete="off">
+        </label>
+        <div class="pg-cats" role="group" aria-label="Filter by category" id="pg-cats"></div>
+        <nav aria-label="Template library"><ul class="pg-list" id="pg-list"></ul></nav>
+      </div>
+    </aside>
+
+    <main class="pg-main" id="pg-main" tabindex="-1">
+      <header class="pg-tpl-head">
+        <div>
+          <p class="pg-tpl-cat ae-text-overline" id="pg-tpl-cat"></p>
+          <h1 class="ae-text-heading-lg" id="pg-tpl-name">Loading…</h1>
+          <p class="ae-text-body-sm ae-muted pg-tpl-desc" id="pg-tpl-desc"></p>
+        </div>
+        <div class="pg-actions" role="group" aria-label="Template actions">
+          <button class="ae-btn ae-btn--sm" type="button" data-copy="html">Copy HTML</button>
+          <button class="ae-btn ae-btn--sm" type="button" data-copy="css">Copy CSS</button>
+          <button class="ae-btn ae-btn--sm" type="button" data-copy="js" id="pg-copy-js">Copy JS</button>
+          <button class="ae-btn ae-btn--primary ae-btn--sm" type="button" id="pg-gen">Generate AI prompt</button>
+        </div>
+      </header>
+
+      <div class="pg-toolbar">
+        <div class="ae-tabs pg-tabs" role="tablist" aria-label="Template views" id="pg-tabs">
+          <button class="ae-tab" role="tab" id="pg-tab-preview" aria-controls="pg-panel-preview" aria-selected="true" data-tab="preview">Preview</button>
+          <button class="ae-tab" role="tab" id="pg-tab-html" aria-controls="pg-panel-html" aria-selected="false" tabindex="-1" data-tab="html">HTML</button>
+          <button class="ae-tab" role="tab" id="pg-tab-css" aria-controls="pg-panel-css" aria-selected="false" tabindex="-1" data-tab="css">CSS</button>
+          <button class="ae-tab" role="tab" id="pg-tab-js" aria-controls="pg-panel-js" aria-selected="false" tabindex="-1" data-tab="js">JS</button>
+          <button class="ae-tab" role="tab" id="pg-tab-prompt" aria-controls="pg-panel-prompt" aria-selected="false" tabindex="-1" data-tab="prompt">AI prompt</button>
+        </div>
+        <div class="pg-seg pg-vp" role="radiogroup" aria-label="Preview width" id="pg-vp">
+          <label><input type="radio" name="pg-vp" value="desktop" checked>Desktop</label>
+          <label><input type="radio" name="pg-vp" value="tablet">Tablet</label>
+          <label><input type="radio" name="pg-vp" value="mobile">Mobile</label>
+        </div>
+      </div>
+
+      <div class="pg-panels">
+        <section class="pg-panel" role="tabpanel" id="pg-panel-preview" aria-labelledby="pg-tab-preview">
+          <div class="pg-stage" id="pg-stage"><iframe class="pg-frame" id="pg-frame" title="Live component preview"></iframe></div>
+          <div class="pg-error ae-alert ae-alert--danger" role="alert" id="pg-error" hidden></div>
+        </section>
+        <section class="pg-panel" role="tabpanel" id="pg-panel-html" aria-labelledby="pg-tab-html" hidden><pre class="pg-code" tabindex="0"><code id="pg-code-html"></code></pre></section>
+        <section class="pg-panel" role="tabpanel" id="pg-panel-css" aria-labelledby="pg-tab-css" hidden><pre class="pg-code" tabindex="0"><code id="pg-code-css"></code></pre></section>
+        <section class="pg-panel" role="tabpanel" id="pg-panel-js" aria-labelledby="pg-tab-js" hidden><pre class="pg-code" tabindex="0"><code id="pg-code-js"></code></pre></section>
+        <section class="pg-panel" role="tabpanel" id="pg-panel-prompt" aria-labelledby="pg-tab-prompt" hidden>
+          <div class="pg-prompt-out">
+            <div class="ae-field">
+              <label class="ae-label" for="pg-req">Your requirements <span class="ae-muted">(optional, added to the prompt)</span></label>
+              <textarea class="ae-textarea" id="pg-req" rows="2" placeholder="e.g. Columns: customer, plan, MRR, status. Status edits with a select."></textarea>
+            </div>
+            <div class="pg-prompt-out__bar">
+              <span class="ae-text-caption" id="pg-prompt-meta"></span>
+              <div class="pg-actions">
+                <button class="ae-btn ae-btn--sm" type="button" id="pg-prompt-dl">Download .md</button>
+                <button class="ae-btn ae-btn--primary ae-btn--sm" type="button" id="pg-prompt-copy">Copy prompt</button>
+              </div>
+            </div>
+            <label class="pg-sr" for="pg-prompt-text">Generated AI prompt</label>
+            <textarea class="pg-code pg-prompt-text" id="pg-prompt-text" spellcheck="false"></textarea>
+          </div>
+        </section>
+      </div>
+
+      <section class="pg-meta" aria-label="Template details">
+        <div class="pg-meta__card">
+          <h2 class="ae-text-label-md">Tokens used <span class="ae-badge" id="pg-tok-count">0</span></h2>
+          <p class="ae-text-caption" id="pg-tok-check"></p>
+          <div class="pg-tokens" id="pg-tokens"></div>
+        </div>
+        <div class="pg-meta__card">
+          <h2 class="ae-text-label-md">Accessibility contract</h2>
+          <ul class="pg-bullets" id="pg-a11y"></ul>
+          <h2 class="ae-text-label-md">Behavior</h2>
+          <ul class="pg-bullets" id="pg-behavior"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="pg-toast" role="status" aria-live="polite" id="pg-toast"></div>
+
+  <!-- Registry (shared) → template modules (this folder) → app -->
+  <script src="../presets/aegis-presets.js"></script>
+  <script src="templates/_core.js"></script>
+  <script src="templates/data.js"></script>
+  <script src="templates/workflow.js"></script>
+  <script src="templates/navigation.js"></script>
+  <script src="templates/forms.js"></script>
+  <script src="templates/feedback.js"></script>
+  <script src="templates/finance.js"></script>
+  <script src="templates/developer.js"></script>
+  <script src="playground.js"></script>
+</body>
+</html>
