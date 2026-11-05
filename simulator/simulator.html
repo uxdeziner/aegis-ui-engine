@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accessibility Simulator · AegisUI</title>
+  <meta name="description" content="Preview an AegisUI enterprise workspace through color-vision, projector washout, 200% text, RTL and keyboard focus-order simulations, then export a printable review report. A simulation and review aid, not a compliance certificate.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%235263e4'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fff'/%3E%3C/svg%3E">
+  <!-- AegisUI presets (all 12 themes) + component recipes. Paths are relative so the page works under any subpath. -->
+  <link rel="stylesheet" href="../presets/aegis-presets.css">
+  <link rel="stylesheet" href="../presets/aegis-components.css">
+  <link rel="stylesheet" href="simulator.css">
+</head>
+<body class="sim">
+  <a class="sim-skip" href="#sim-controls">Skip to simulation controls</a>
+  <a class="sim-skip" href="#ws">Skip to simulated workspace</a>
+
+  <!-- SVG filter definitions. simulator.js rewrites #sim-filter's primitives for the active settings. -->
+  <svg class="sim-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="sim-filter" x="0" y="0" width="100%" height="100%"></filter>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21h4"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l3 12h11l2-8H6.5"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="m3 7 9-4 9 4v10l-9 4-9-4z"/><path d="m3 7 9 4 9-4M12 11v10"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M16 4.5a3.5 3.5 0 0 1 0 7M22 20c0-3-2-5-4.5-5.7"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  </svg>
+
+  <header class="sim-header">
+    <div class="sim-brand">
+      <svg class="sim-logo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14"/><circle class="sim-logo-pupil" cx="16" cy="16" r="6"/></svg>
+      <div>
+        <h1>Accessibility Simulator</h1>
+        <p>AegisUI · Phase 2 · <strong>simulation &amp; review aid</strong></p>
+      </div>
+    </div>
+    <div class="sim-header-actions">
+      <label class="sim-inline-field">
+        <span>Preset</span>
+        <select id="sim-preset" class="sim-select"></select>
+      </label>
+      <label class="sim-inline-field">
+        <span>Mode</span>
+        <select id="sim-mode" class="sim-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <button type="button" class="sim-btn" id="sim-reset">Reset</button>
+      <button type="button" class="sim-btn sim-btn--primary" id="sim-export">Review report</button>
+    </div>
+  </header>
+
+  <div class="sim-layout">
+    <!-- ================= Controls ================= -->
+    <aside class="sim-panel" id="sim-controls" aria-labelledby="sim-controls-title" tabindex="-1">
+      <h2 id="sim-controls-title" class="sim-panel-title">Simulations</h2>
+      <p class="sim-hint">Simulations combine. They only affect the workspace preview, never these controls.</p>
+
+      <fieldset class="sim-group">
+        <legend>Color vision</legend>
+        <div class="sim-radios" id="sim-vision">
+          <label class="sim-radio"><input type="radio" name="vision" value="none" checked><span><strong>Typical vision</strong><small>No color transform</small></span></label>
+          <label class="sim-radio"><input type="radio" name="vision" value="protanopia"><span><strong>Protanopia</strong><small>No red (L) cones · ~1% of men</small></span></label>
+          <label class="sim-radio"><input type="radio" name="vision" value="deuteranopia"><span><strong>Deuteranopia</strong><small>No green (M) cones · ~1% of men</small></span></label>
+          <label class="sim-radio"><input type="radio" name="vision" value="tritanopia"><span><strong>Tritanopia</strong><small>No blue (S) cones · rare</small></span></label>
+          <label class="sim-radio"><input type="radio" name="vision" value="achromatopsia"><span><strong>Achromatopsia</strong><small>No color perception</small></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="sim-group">
+        <legend>Environment</legend>
+        <label class="sim-switch"><input type="checkbox" role="switch" id="sim-washout"><span class="sim-switch-track" aria-hidden="true"></span><span>Projector / low-contrast washout</span></label>
+        <label class="sim-range" for="sim-washout-level">
+          <span>Washout intensity <output id="sim-washout-out" for="sim-washout-level">60%</output></span>
+          <input type="range" id="sim-washout-level" min="10" max="100" step="5" value="60" aria-describedby="sim-washout-help">
+        </label>
+        <p class="sim-hint" id="sim-washout-help">Lifts blacks, dims whites and desaturates, like a projector in a bright room.</p>
+      </fieldset>
+
+      <fieldset class="sim-group">
+        <legend>Text &amp; layout</legend>
+        <label class="sim-field">
+          <span>Text size</span>
+          <select id="sim-text-scale" class="sim-select" aria-describedby="sim-text-help">
+            <option value="100">100% (default)</option>
+            <option value="125">125%</option>
+            <option value="150">150%</option>
+            <option value="200">200% (WCAG 1.4.4)</option>
+          </select>
+        </label>
+        <p class="sim-hint" id="sim-text-help">Scales only the preset’s text tokens, like a browser text-only zoom. Layout boxes keep their size, which shows clipping.</p>
+        <label class="sim-switch"><input type="checkbox" role="switch" id="sim-rtl"><span class="sim-switch-track" aria-hidden="true"></span><span>Right-to-left layout (<code>dir="rtl"</code>)</span></label>
+        <label class="sim-field">
+          <span>Preview width</span>
+          <select id="sim-width" class="sim-select">
+            <option value="fit">Fit to window</option>
+            <option value="1280">Desktop · 1280px</option>
+            <option value="768">Tablet · 768px</option>
+            <option value="390">Mobile · 390px</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset class="sim-group">
+        <legend>Keyboard</legend>
+        <label class="sim-switch"><input type="checkbox" role="switch" id="sim-focus"><span class="sim-switch-track" aria-hidden="true"></span><span>Focus-order overlay</span></label>
+        <p class="sim-hint">Numbers follow the browser’s real Tab sequence: positive <code>tabindex</code> first, then document order. Disabled, hidden, inert and roving-<code>tabindex="-1"</code> items are skipped.</p>
+        <div class="sim-step" role="group" aria-label="Step through focus order">
+          <button type="button" class="sim-btn sim-btn--sm" id="sim-step-prev">← Previous stop</button>
+          <button type="button" class="sim-btn sim-btn--sm" id="sim-step-next">Next stop →</button>
+        </div>
+        <details class="sim-stops" id="sim-stops-details">
+          <summary>Focus stops <span id="sim-stop-count">0</span></summary>
+          <ol id="sim-stops" class="sim-stop-list"></ol>
+        </details>
+      </fieldset>
+
+      <section class="sim-group sim-observations" aria-labelledby="sim-obs-title">
+        <h3 id="sim-obs-title">Automated observations</h3>
+        <p class="sim-hint">These are heuristic notes for the current settings. They are not pass/fail results.</p>
+        <ul id="sim-obs" class="sim-obs-list"></ul>
+      </section>
+
+      <p class="sim-disclaimer"><strong>Not a compliance certificate.</strong> Simulations approximate how people may experience the interface. They are not proof of WCAG conformance. Confirm findings with manual testing, assistive technology and people with disabilities.</p>
+    </aside>
+
+    <!-- ================= Stage ================= -->
+    <section class="sim-stage" aria-labelledby="sim-stage-title">
+      <div class="sim-stage-bar">
+        <h2 id="sim-stage-title" class="sim-panel-title">Workspace preview</h2>
+        <ul class="sim-chips" id="sim-chips" aria-label="Active simulations"></ul>
+      </div>
+      <div class="sim-viewport" id="sim-viewport">
+        <div class="sim-canvas" id="sim-canvas">
+          <!-- The simulated product. Themed by data-aegis-theme/mode; simulations apply here only. -->
+          <div id="ws" class="ws ae-root" data-aegis-theme="enterprise-saas" data-aegis-mode="light" role="region" aria-label="Simulated workspace: Northwind Procurement" tabindex="-1">
+            <nav class="ae-nav ws-nav" aria-label="Workspace">
+              <div class="ws-logo"><span class="ws-logo-mark" aria-hidden="true"></span>Northwind Ops</div>
+              <a class="ae-nav__item" href="#ws-dashboard"><svg aria-hidden="true"><use href="#i-home"/></svg>Dashboard</a>
+              <a class="ae-nav__item" href="#ws-orders" aria-current="page"><svg aria-hidden="true"><use href="#i-cart"/></svg>Purchase orders<span class="ae-badge ae-badge--brand">12</span></a>
+              <a class="ae-nav__item" href="#ws-inventory"><svg aria-hidden="true"><use href="#i-box"/></svg>Inventory</a>
+              <a class="ae-nav__item" href="#ws-suppliers"><svg aria-hidden="true"><use href="#i-users"/></svg>Suppliers</a>
+              <a class="ae-nav__item" href="#ws-reports"><svg aria-hidden="true"><use href="#i-chart"/></svg>Reports</a>
+              <div class="ae-nav__section">Finance</div>
+              <a class="ae-nav__item" href="#ws-invoices"><svg aria-hidden="true"><use href="#i-file"/></svg>Invoices<span class="ae-badge ae-badge--danger">3</span></a>
+              <a class="ae-nav__item" href="#ws-settings"><svg aria-hidden="true"><use href="#i-settings"/></svg>Settings</a>
+            </nav>
+
+            <div class="ws-main">
+              <header class="ws-topbar">
+                <ol class="ws-crumbs" aria-label="Breadcrumb">
+                  <li><a class="ae-link" href="#ws-procurement">Procurement</a></li>
+                  <li><svg class="ws-chev" aria-hidden="true"><use href="#i-chevron"/></svg><span aria-current="page">Purchase orders</span></li>
+                </ol>
+                <div class="ws-tools">
+                  <div class="ae-input-group ws-search">
+                    <svg aria-hidden="true"><use href="#i-search"/></svg>
+                    <input class="ae-input" type="search" placeholder="Search orders, suppliers…" aria-label="Search orders and suppliers">
+                  </div>
+                  <button type="button" class="ae-btn ae-btn--ghost ae-btn--icon" aria-label="Notifications, 4 unread"><svg aria-hidden="true"><use href="#i-bell"/></svg></button>
+                  <button type="button" class="ae-btn ae-btn--ghost ae-btn--icon" aria-label="Help"><svg aria-hidden="true"><use href="#i-help"/></svg></button>
+                  <span class="ae-avatar" aria-label="Signed in as Priya Raman" role="img">PR</span>
+                </div>
+              </header>
+
+              <div class="ws-content">
+                <div class="ws-pagehead">
+                  <div>
+                    <h2 class="ae-text-heading-lg">Purchase orders</h2>
+                    <p class="ae-muted ws-sub">Q3 FY26 · EMEA region · last synced 4 min ago</p>
+                  </div>
+                  <div class="ws-actions">
+                    <button type="button" class="ae-btn"><svg aria-hidden="true"><use href="#i-download"/></svg>Export CSV</button>
+                    <button type="button" class="ae-btn ae-btn--primary"><svg aria-hidden="true"><use href="#i-plus"/></svg>New order</button>
+                  </div>
+                </div>
+
+                <div class="ae-tabs ws-tabs" role="tablist" aria-label="Order views">
+                  <button type="button" class="ae-tab" role="tab" id="ws-tab-all" aria-selected="true" aria-controls="ws-panel" tabindex="0">All orders</button>
+                  <button type="button" class="ae-tab" role="tab" id="ws-tab-approval" aria-selected="false" aria-controls="ws-panel" tabindex="-1">Awaiting approval</button>
+                  <button type="button" class="ae-tab" role="tab" id="ws-tab-transit" aria-selected="false" aria-controls="ws-panel" tabindex="-1">In transit</button>
+                  <button type="button" class="ae-tab" role="tab" id="ws-tab-closed" aria-selected="false" aria-controls="ws-panel" tabindex="-1">Closed</button>
+                </div>
+
+                <div id="ws-panel" role="tabpanel" aria-labelledby="ws-tab-all" class="ws-panel">
+                  <div class="ws-kpis">
+                    <div class="ae-card ae-stat"><span class="ae-text-overline">Committed spend</span><span class="ae-stat__value">€4.82M</span><span class="ae-stat__delta ae-stat__delta--up">▲ 6.4% <span class="ae-muted">vs Q2</span></span><div class="ae-progress" role="progressbar" aria-label="Budget used" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><span style="width:72%"></span></div></div>
+                    <div class="ae-card ae-stat"><span class="ae-text-overline">Open orders</span><span class="ae-stat__value">1,284</span><span class="ae-stat__delta ae-stat__delta--down">▼ 3.1% <span class="ae-muted">vs Q2</span></span><div class="ae-progress" role="progressbar" aria-label="Orders fulfilled" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100"><span style="width:48%"></span></div></div>
+                    <div class="ae-card ae-stat"><span class="ae-text-overline">On-time delivery</span><span class="ae-stat__value">94.2%</span><span class="ae-stat__delta ae-stat__delta--up">▲ 1.8 pts <span class="ae-muted">vs Q2</span></span><div class="ae-progress" role="progressbar" aria-label="On-time delivery" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"><span style="width:94%"></span></div></div>
+                    <div class="ae-card ae-stat"><span class="ae-text-overline">Invoice exceptions</span><span class="ae-stat__value">37</span><span class="ae-stat__delta ae-stat__delta--down">▲ 12 <span class="ae-muted">need review</span></span><div class="ae-progress" role="progressbar" aria-label="Exceptions resolved" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100"><span style="width:34%"></span></div></div>
+                  </div>
+
+                  <div class="ws-grid">
+                    <div class="ws-col">
+                      <div class="ae-alert ae-alert--warning">
+                        <svg aria-hidden="true"><use href="#i-alert"/></svg>
+                        <div><p class="ae-alert__title">3 invoices exceed price tolerance</p><p class="ae-alert__body">PO-48213, PO-48220 and PO-48231 differ from contract by more than 2%. <a class="ae-link" href="#ws-exceptions">Review exceptions</a></p></div>
+                      </div>
+
+                      <div class="ae-card ae-card--flush">
+                        <div class="ae-card__header ws-card-head">
+                          <h3 class="ae-text-heading-sm" id="ws-table-title">Recent purchase orders</h3>
+                          <span class="ae-badge">8 of 1,284</span>
+                        </div>
+                        <div class="ae-table-wrap">
+                          <table class="ae-table" aria-labelledby="ws-table-title">
+                            <thead>
+                              <tr>
+                                <th scope="col"><input type="checkbox" aria-label="Select all orders"></th>
+                                <th scope="col">Order</th>
+                                <th scope="col">Supplier</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Risk</th>
+                                <th scope="col" class="ae-num">Amount</th>
+                                <th scope="col"><span class="ws-sr">Actions</span></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48231"></td><td><a class="ae-link" href="#po-48231">PO-48231</a></td><td>Halvorsen Metals AS</td><td><span class="ae-badge ae-badge--danger ae-badge--dot">Blocked</span></td><td><span class="ws-dot ws-dot--danger" title="High risk"></span></td><td class="ae-num">€182,400.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48231"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr aria-selected="true"><td><input type="checkbox" checked aria-label="Select PO-48229"></td><td><a class="ae-link" href="#po-48229">PO-48229</a></td><td>Kestrel Logistics GmbH</td><td><span class="ae-badge ae-badge--warning ae-badge--dot">Awaiting approval</span></td><td><span class="ws-dot ws-dot--warning" title="Medium risk"></span></td><td class="ae-num">€64,950.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48229"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48226"></td><td><a class="ae-link" href="#po-48226">PO-48226</a></td><td>Orbis Packaging Ltd</td><td><span class="ae-badge ae-badge--success ae-badge--dot">Delivered</span></td><td><span class="ws-dot ws-dot--success" title="Low risk"></span></td><td class="ae-num">€12,310.50</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48226"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48224"></td><td><a class="ae-link" href="#po-48224">PO-48224</a></td><td>Verde Agritech S.p.A.</td><td><span class="ae-badge ae-badge--info ae-badge--dot">In transit</span></td><td><span class="ws-dot ws-dot--success" title="Low risk"></span></td><td class="ae-num">€48,000.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48224"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48220"></td><td><a class="ae-link" href="#po-48220">PO-48220</a></td><td>Sakura Components KK</td><td><span class="ae-badge ae-badge--danger ae-badge--dot">Price variance</span></td><td><span class="ws-dot ws-dot--danger" title="High risk"></span></td><td class="ae-num">€229,870.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48220"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48217"></td><td><a class="ae-link" href="#po-48217">PO-48217</a></td><td>Brightline Office Supply</td><td><span class="ae-badge ae-badge--success ae-badge--dot">Delivered</span></td><td><span class="ws-dot ws-dot--warning" title="Medium risk"></span></td><td class="ae-num">€3,482.20</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48217"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48213"></td><td><a class="ae-link" href="#po-48213">PO-48213</a></td><td>Atlas Freight Partners</td><td><span class="ae-badge ae-badge--warning ae-badge--dot">Partially received</span></td><td><span class="ws-dot ws-dot--warning" title="Medium risk"></span></td><td class="ae-num">€97,125.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48213"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                              <tr><td><input type="checkbox" aria-label="Select PO-48209"></td><td><a class="ae-link" href="#po-48209">PO-48209</a></td><td>Nordlys Energy ASA</td><td><span class="ae-badge ae-badge--info ae-badge--dot">Draft</span></td><td><span class="ws-dot ws-dot--success" title="Low risk"></span></td><td class="ae-num">€8,760.00</td><td><button type="button" class="ae-btn ae-btn--ghost ae-btn--icon ae-btn--sm" aria-label="Actions for PO-48209"><svg aria-hidden="true"><use href="#i-more"/></svg></button></td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="ws-pager">
+                          <span class="ae-muted">Rows 1–8 of 1,284</span>
+                          <div class="ws-pager-btns">
+                            <button type="button" class="ae-btn ae-btn--sm" disabled>Previous</button>
+                            <button type="button" class="ae-btn ae-btn--sm">Next</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="ae-card">
+                        <div class="ws-card-head ws-card-head--plain">
+                          <h3 class="ae-text-heading-sm" id="ws-chart-title">Spend by category · last 6 months</h3>
+                          <span class="ae-badge ae-badge--info">€ thousands</span>
+                        </div>
+                        <figure class="ws-chart" aria-labelledby="ws-chart-title">
+                          <svg class="ws-chart-svg" viewBox="0 0 560 200" role="img" aria-label="Grouped bar chart: Raw materials grew from 210 to 320, Logistics stable near 140, Packaging fell from 120 to 70, IT services rose from 60 to 150, Facilities flat near 40.">
+                            <g class="ws-gridlines" aria-hidden="true"><line x1="40" x2="556" y1="20" y2="20"/><line x1="40" x2="556" y1="70" y2="70"/><line x1="40" x2="556" y1="120" y2="120"/><line x1="40" x2="556" y1="170" y2="170"/></g>
+                            <g class="ws-axis" aria-hidden="true"><text x="34" y="24">300</text><text x="34" y="74">200</text><text x="34" y="124">100</text><text x="34" y="174">0</text></g>
+                            <g id="ws-bars" aria-hidden="true"></g>
+                          </svg>
+                          <figcaption class="ws-legend">
+                            <span><i class="ws-key ws-s1"></i>Raw materials</span>
+                            <span><i class="ws-key ws-s2"></i>Logistics</span>
+                            <span><i class="ws-key ws-s3"></i>Packaging</span>
+                            <span><i class="ws-key ws-s4"></i>IT services</span>
+                            <span><i class="ws-key ws-s5"></i>Facilities</span>
+                          </figcaption>
+                        </figure>
+                      </div>
+                    </div>
+
+                    <div class="ws-col ws-col--side">
+                      <form class="ae-card ws-filters" aria-labelledby="ws-filter-title">
+                        <h3 class="ae-text-heading-sm" id="ws-filter-title">Filters</h3>
+                        <label class="ae-field"><span class="ae-label">Supplier</span>
+                          <select class="ae-select"><option>All suppliers</option><option>Halvorsen Metals AS</option><option>Kestrel Logistics GmbH</option><option>Sakura Components KK</option></select>
+                        </label>
+                        <div class="ws-two">
+                          <label class="ae-field"><span class="ae-label">From</span><input class="ae-input" type="date" value="2026-07-01"></label>
+                          <label class="ae-field"><span class="ae-label">To</span><input class="ae-input" type="date" value="2026-09-30"></label>
+                        </div>
+                        <label class="ae-field"><span class="ae-label">Cost centre</span>
+                          <input class="ae-input" value="CC-41" aria-invalid="true" aria-describedby="ws-cc-err">
+                          <span class="ae-help ae-help--error" id="ws-cc-err">Enter a 6-digit cost centre, e.g. CC-410022.</span>
+                        </label>
+                        <fieldset class="ws-fieldset">
+                          <legend class="ae-label">Status</legend>
+                          <label class="ae-check"><input type="checkbox" checked> Awaiting approval</label>
+                          <label class="ae-check"><input type="checkbox" checked> Blocked</label>
+                          <label class="ae-check"><input type="checkbox"> Delivered</label>
+                        </fieldset>
+                        <fieldset class="ws-fieldset">
+                          <legend class="ae-label">Currency</legend>
+                          <label class="ae-check"><input type="radio" name="ws-cur" checked> EUR</label>
+                          <label class="ae-check"><input type="radio" name="ws-cur"> USD</label>
+                          <label class="ae-check"><input type="radio" name="ws-cur"> GBP</label>
+                        </fieldset>
+                        <label class="ae-check"><input type="checkbox" role="switch" class="ae-switch" checked> Hide archived suppliers</label>
+                        <div class="ws-actions ws-actions--end">
+                          <button type="reset" class="ae-btn ae-btn--ghost">Clear</button>
+                          <button type="submit" class="ae-btn ae-btn--primary">Apply filters</button>
+                        </div>
+                      </form>
+
+                      <div class="ae-card">
+                        <h3 class="ae-text-heading-sm">Approval SLA</h3>
+                        <ul class="ws-sla">
+                          <li><span class="ws-dot ws-dot--success" aria-hidden="true"></span><span>Finance review</span><span class="ae-num ws-sla-v">1.2 days</span></li>
+                          <li><span class="ws-dot ws-dot--warning" aria-hidden="true"></span><span>Legal sign-off</span><span class="ae-num ws-sla-v">3.8 days</span></li>
+                          <li><span class="ws-dot ws-dot--danger" aria-hidden="true"></span><span>Executive approval</span><span class="ae-num ws-sla-v">6.5 days</span></li>
+                        </ul>
+                      </div>
+
+                      <div class="ae-card">
+                        <h3 class="ae-text-heading-sm">Activity</h3>
+                        <ul class="ws-feed">
+                          <li><span class="ae-avatar ae-avatar--sm" aria-hidden="true">JK</span><p><strong>Jonas Keller</strong> approved <a class="ae-link" href="#po-48226">PO-48226</a><br><span class="ae-text-caption">12 min ago</span></p></li>
+                          <li><span class="ae-avatar ae-avatar--sm" aria-hidden="true">AM</span><p><strong>Amara Mensah</strong> flagged a price variance on <a class="ae-link" href="#po-48220">PO-48220</a><br><span class="ae-text-caption">48 min ago</span></p></li>
+                          <li><span class="ae-avatar ae-avatar--sm" aria-hidden="true">LS</span><p><strong>Lucía Serrano</strong> uploaded 4 delivery notes<br><span class="ae-text-caption">2 h ago</span></p></li>
+                        </ul>
+                        <div class="ae-alert ae-alert--danger">
+                          <svg aria-hidden="true"><use href="#i-alert"/></svg>
+                          <div><p class="ae-alert__title">Payment run failed</p><p class="ae-alert__body">Bank file rejected at 09:14 CET. <a class="ae-link" href="#ws-payments">Retry payment run</a></p></div>
+                        </div>
+                        <div class="ae-alert ae-alert--success">
+                          <svg aria-hidden="true"><use href="#i-check"/></svg>
+                          <div><p class="ae-alert__title">Supplier sync complete</p><p class="ae-alert__body">2,140 records updated.</p></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <svg class="sim-focus-overlay" id="sim-focus-overlay" aria-hidden="true" focusable="false" hidden></svg>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="sim-live" id="sim-live" role="status" aria-live="polite"></div>
+
+  <dialog class="sim-dialog" id="sim-report-dialog" aria-labelledby="sim-report-title">
+    <div class="sim-dialog-head">
+      <div>
+        <h2 id="sim-report-title">Accessibility review report</h2>
+        <p class="sim-hint">This runs every simulation against the current preset and lists the settings and automated observations. It is a simulation and review aid, <strong>not a compliance certificate or proof of WCAG conformance</strong>.</p>
+      </div>
+      <button type="button" class="sim-btn sim-btn--icon" id="sim-report-close" aria-label="Close report">✕</button>
+    </div>
+    <iframe class="sim-report-frame" id="sim-report-frame" title="Report preview"></iframe>
+    <div class="sim-dialog-foot">
+      <button type="button" class="sim-btn" id="sim-report-download">Download HTML</button>
+      <button type="button" class="sim-btn sim-btn--primary" id="sim-report-print">Print / save as PDF</button>
+    </div>
+  </dialog>
+
+  <script src="../presets/aegis-presets.js" defer></script>
+  <script src="simulator.js" defer></script>
+</body>
+</html>
