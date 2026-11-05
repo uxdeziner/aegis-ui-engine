@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AegisUI Studio</title>
+  <meta name="description" content="AegisUI: The AI Design System & Context Engine. Generate perceptual color scales, type, spacing, radius, elevation and motion tokens, preview them live, and compile CLAUDE.md, .cursorrules, AGENTS.md and system prompts for AI coding assistants.">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z' fill='%23d9a441'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/studio.css">
+  <link rel="stylesheet" href="css/preview.css">
+  <style id="ae-live-tokens"></style>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to workspace</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand__mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/><path class="brand__mark-inner" d="M12 6.5v11M7.5 9.5h9"/></svg>
+      <div class="brand__text">
+        <h1 class="brand__name">AegisUI</h1>
+        <p class="brand__tag">Design System &amp; Context Engine</p>
+      </div>
+    </div>
+    <div class="topbar__fields">
+      <div class="tfield">
+        <label for="ds-name">System name</label>
+        <input id="ds-name" type="text" data-bind="name" maxlength="40" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="tfield tfield--narrow">
+        <label for="ds-prefix">Token prefix</label>
+        <div class="prefix-input"><span aria-hidden="true">--</span><input id="ds-prefix" type="text" maxlength="12" autocomplete="off" spellcheck="false" aria-describedby="prefix-hint" pattern="[a-z][a-z0-9\-]{0,11}"></div>
+        <span class="sr-only" id="prefix-hint">Lowercase letters, digits and hyphens. Starts with a letter.</span>
+      </div>
+      <div class="tfield">
+        <label for="ds-preset">Preset</label>
+        <select id="ds-preset"></select>
+      </div>
+    </div>
+    <div class="topbar__actions">
+      <label class="btn btn--ghost" for="import-file" title="Load an aegis.config.json">
+        <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></svg><span>Import</span>
+      </label>
+      <input type="file" id="import-file" accept="application/json,.json" class="sr-only">
+      <button type="button" class="btn btn--ghost" id="btn-reset">
+        <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg><span>Reset</span>
+      </button>
+      <button type="button" class="btn btn--accent" id="btn-quick-zip">
+        <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Download bundle</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="split" id="split">
+    <!-- ───────────────────────── Left: token controls ───────────────────────── -->
+    <aside class="controls" id="controls" aria-label="Design token controls">
+
+      <details class="group" open>
+        <summary><span class="group__title">Color</span><span class="group__meta">OKLCH · 11 steps</span></summary>
+        <div class="group__body">
+          <div class="cfield">
+            <div class="cfield__head">
+              <label for="c-primary">Primary</label>
+              <span class="cfield__meta" id="primary-meta"></span>
+            </div>
+            <div class="color-input">
+              <input type="color" id="c-primary" data-bind="color.primary">
+              <input type="text" class="hex" id="c-primary-hex" data-hex-for="c-primary" aria-label="Primary hex value" maxlength="7" spellcheck="false" autocomplete="off">
+            </div>
+            <ol class="ramp" id="ramp-primary" aria-label="Primary scale. Activate a swatch to copy its token."></ol>
+          </div>
+
+          <div class="cfield">
+            <div class="cfield__head">
+              <label for="c-neutral">Neutral</label>
+              <span class="cfield__meta">hue source</span>
+            </div>
+            <div class="color-input">
+              <input type="color" id="c-neutral" data-bind="color.neutral">
+              <input type="text" class="hex" id="c-neutral-hex" data-hex-for="c-neutral" aria-label="Neutral hex value" maxlength="7" spellcheck="false" autocomplete="off">
+            </div>
+            <div class="range">
+              <div class="range__head"><label for="c-tint">Neutral tint</label><output for="c-tint" id="o-tint"></output></div>
+              <input type="range" id="c-tint" min="0" max="100" step="5" data-bind="color.neutralTint" data-unit="%">
+            </div>
+            <ol class="ramp" id="ramp-neutral" aria-label="Neutral scale. Activate a swatch to copy its token."></ol>
+          </div>
+
+          <fieldset class="cfield status-fields">
+            <legend>Status colors</legend>
+            <div class="status-grid">
+              <div class="mini-color"><input type="color" id="c-success" data-bind="color.success"><label for="c-success">Success</label></div>
+              <div class="mini-color"><input type="color" id="c-warning" data-bind="color.warning"><label for="c-warning">Warning</label></div>
+              <div class="mini-color"><input type="color" id="c-danger" data-bind="color.danger"><label for="c-danger">Danger</label></div>
+              <div class="mini-color"><input type="color" id="c-info" data-bind="color.info"><label for="c-info">Info</label></div>
+            </div>
+            <div class="status-ramps" id="ramp-status"></div>
+          </fieldset>
+          <p class="note" id="color-notes" aria-live="polite"></p>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">Typography</span><span class="group__meta" id="meta-type"></span></summary>
+        <div class="group__body">
+          <div class="two-col">
+            <div class="sfield"><label for="t-heading">Heading face</label><select id="t-heading" data-bind="type.heading"></select></div>
+            <div class="sfield"><label for="t-body">Body face</label><select id="t-body" data-bind="type.body"></select></div>
+          </div>
+          <div class="two-col">
+            <div class="sfield"><label for="t-ratio">Scale ratio</label><select id="t-ratio" data-bind="type.ratio" data-type="number"></select></div>
+            <div class="sfield"><label for="t-mono">Mono face</label><select id="t-mono" data-bind="type.mono"></select></div>
+          </div>
+          <div class="range">
+            <div class="range__head"><label for="t-base">Base size</label><output for="t-base" id="o-base"></output></div>
+            <input type="range" id="t-base" min="12" max="20" step="1" data-bind="type.base" data-unit="px">
+          </div>
+          <div class="range">
+            <div class="range__head"><label for="t-lh">Body line height</label><output for="t-lh" id="o-lh"></output></div>
+            <input type="range" id="t-lh" min="1.3" max="1.8" step="0.05" data-bind="type.lineHeight">
+          </div>
+          <div class="range">
+            <div class="range__head"><label for="t-weight">Heading weight</label><output for="t-weight" id="o-weight"></output></div>
+            <input type="range" id="t-weight" min="400" max="900" step="50" data-bind="type.headingWeight">
+          </div>
+          <ol class="type-specimen" id="type-specimen" aria-label="Type scale"></ol>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">Spacing</span><span class="group__meta" id="meta-space"></span></summary>
+        <div class="group__body">
+          <fieldset class="seg" aria-describedby="grid-hint">
+            <legend>Base grid</legend>
+            <label><input type="radio" name="grid" value="4" data-bind="space.grid" data-type="number"><span>4px</span></label>
+            <label><input type="radio" name="grid" value="8" data-bind="space.grid" data-type="number"><span>8px</span></label>
+          </fieldset>
+          <p class="hint" id="grid-hint">4px suits dense data apps. 8px gives roomier, marketing-friendly rhythm.</p>
+          <ol class="space-specimen" id="space-specimen" aria-label="Spacing scale"></ol>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">Border radius</span><span class="group__meta" id="meta-radius"></span></summary>
+        <div class="group__body">
+          <div class="range">
+            <div class="range__head"><label for="r-base">Base radius (md)</label><output for="r-base" id="o-radius"></output></div>
+            <input type="range" id="r-base" min="0" max="24" step="1" data-bind="radius.base" data-unit="px">
+          </div>
+          <ol class="radius-specimen" id="radius-specimen" aria-label="Radius scale"></ol>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">Shadow depth</span><span class="group__meta" id="meta-shadow"></span></summary>
+        <div class="group__body">
+          <div class="range">
+            <div class="range__head"><label for="s-depth">Elevation strength</label><output for="s-depth" id="o-depth"></output></div>
+            <input type="range" id="s-depth" min="0" max="5" step="1" data-bind="shadow.depth">
+          </div>
+          <ol class="shadow-specimen" id="shadow-specimen" aria-label="Elevation scale"></ol>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">Motion</span><span class="group__meta" id="meta-motion"></span></summary>
+        <div class="group__body">
+          <div class="range">
+            <div class="range__head"><label for="m-duration">Base duration</label><output for="m-duration" id="o-duration"></output></div>
+            <input type="range" id="m-duration" min="80" max="600" step="10" data-bind="motion.duration" data-unit="ms">
+          </div>
+          <div class="sfield"><label for="m-easing">Easing curve</label><select id="m-easing" data-bind="motion.easing"></select></div>
+          <div class="motion-lab">
+            <svg class="curve" id="curve" viewBox="-10 -40 120 180" role="img" aria-labelledby="curve-label">
+              <title id="curve-label">Easing curve preview</title>
+              <rect class="curve__box" x="0" y="0" width="100" height="100"></rect>
+              <line class="curve__diag" x1="0" y1="100" x2="100" y2="0"></line>
+              <line class="curve__handle" id="curve-h1" x1="0" y1="100" x2="0" y2="100"></line>
+              <line class="curve__handle" id="curve-h2" x1="100" y1="0" x2="100" y2="0"></line>
+              <path class="curve__path" id="curve-path" d=""></path>
+              <circle class="curve__knob" id="curve-k1" r="4"></circle>
+              <circle class="curve__knob" id="curve-k2" r="4"></circle>
+            </svg>
+            <fieldset class="bezier">
+              <legend>cubic-bezier</legend>
+              <label><span>x1</span><input type="number" id="bz-0" min="0" max="1" step="0.01"></label>
+              <label><span>y1</span><input type="number" id="bz-1" min="-1" max="2" step="0.01"></label>
+              <label><span>x2</span><input type="number" id="bz-2" min="0" max="1" step="0.01"></label>
+              <label><span>y2</span><input type="number" id="bz-3" min="-1" max="2" step="0.01"></label>
+            </fieldset>
+          </div>
+          <div class="motion-demo">
+            <div class="motion-track" aria-hidden="true"><span class="motion-ball" id="motion-ball"></span></div>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-play">Play</button>
+          </div>
+          <p class="hint" id="motion-hint"></p>
+        </div>
+      </details>
+
+      <details class="group" open>
+        <summary><span class="group__title">WCAG 2.2 AA audit</span><span class="group__meta" id="meta-audit"></span></summary>
+        <div class="group__body">
+          <p class="hint">Semantic pairs are resolved automatically to meet AA. Ratios are computed from the generated values.</p>
+          <div class="audit-wrap">
+            <table class="audit" id="audit">
+              <caption class="sr-only">Contrast ratios for semantic color pairs</caption>
+              <thead><tr><th scope="col">Pair</th><th scope="col">Min</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </aside>
+
+    <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-controls="controls" aria-label="Resize control panel" tabindex="0" aria-valuemin="280" aria-valuemax="640" aria-valuenow="380"></div>
+
+    <!-- ───────────────────────── Right: workspace ───────────────────────── -->
+    <main class="workspace" id="workspace" tabindex="-1">
+      <div class="wtabs" role="tablist" aria-label="Workspace">
+        <button type="button" role="tab" class="wtab" id="tab-preview" aria-controls="panel-preview" aria-selected="true"><span class="wtab__key" aria-hidden="true">A</span>Live Preview</button>
+        <button type="button" role="tab" class="wtab" id="tab-compiler" aria-controls="panel-compiler" aria-selected="false" tabindex="-1"><span class="wtab__key" aria-hidden="true">B</span>AI Context Compiler</button>
+        <button type="button" role="tab" class="wtab" id="tab-export" aria-controls="panel-export" aria-selected="false" tabindex="-1"><span class="wtab__key" aria-hidden="true">C</span>Code &amp; Token Export</button>
+      </div>
+
+      <!-- Tab A -->
+      <section class="wpanel wpanel--preview" role="tabpanel" id="panel-preview" aria-labelledby="tab-preview">
+        <div class="ptoolbar">
+          <div class="seg seg--inline" role="group" aria-label="Preview screen" id="screen-switch">
+            <button type="button" data-screen="dashboard" aria-pressed="true">Dashboard</button>
+            <button type="button" data-screen="table" aria-pressed="false">Data table</button>
+            <button type="button" data-screen="kanban" aria-pressed="false">Kanban</button>
+            <button type="button" data-screen="auth" aria-pressed="false">Auth</button>
+            <button type="button" data-screen="settings" aria-pressed="false">Settings modal</button>
+          </div>
+          <div class="ptoolbar__right">
+            <div class="seg seg--inline" role="group" aria-label="Preview width" id="viewport-switch">
+              <button type="button" data-vp="desktop" aria-pressed="true" title="Desktop">
+                <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span class="sr-only">Desktop</span></button>
+              <button type="button" data-vp="tablet" aria-pressed="false" title="Tablet">
+                <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/></svg><span class="sr-only">Tablet</span></button>
+              <button type="button" data-vp="mobile" aria-pressed="false" title="Mobile">
+                <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span class="sr-only">Mobile</span></button>
+            </div>
+            <button type="button" class="mode-toggle" id="mode-toggle" role="switch" aria-checked="false" aria-label="Dark mode preview">
+              <span class="mode-toggle__opt">Light</span><span class="mode-toggle__opt">Dark</span>
+            </button>
+          </div>
+        </div>
+        <div class="frame" id="frame">
+          <div class="frame__device" id="frame-device" data-vp="desktop">
+            <div class="ae-preview" id="preview-root" data-mode="light"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab B -->
+      <section class="wpanel wpanel--compiler" role="tabpanel" id="panel-compiler" aria-labelledby="tab-compiler" hidden>
+        <div class="compiler">
+          <div class="compiler__intro">
+            <h2 class="panel-title">AI Context Compiler</h2>
+            <p class="panel-lede">Rule files that lock coding assistants to your exact tokens, semantic HTML5 and WCAG 2.2 AA. They update as you change the system.</p>
+          </div>
+          <div class="compiler__opts">
+            <div class="sfield"><label for="cc-target">Target stack</label><select id="cc-target"></select></div>
+            <div class="sfield"><label for="cc-mode">Enforcement</label>
+              <select id="cc-mode"><option value="strict">Strict: tokens for everything</option><option value="pragmatic">Pragmatic: literal layout values allowed</option></select>
+            </div>
+            <label class="check"><input type="checkbox" id="cc-scales"><span>Include palette primitives</span></label>
+          </div>
+          <div class="fmt-tabs" role="tablist" aria-label="Output format" id="fmt-tabs"></div>
+          <div class="codecard" role="tabpanel" id="fmt-panel" aria-labelledby="">
+            <div class="codecard__head">
+              <div class="codecard__file">
+                <span class="codecard__name" id="fmt-file"></span>
+                <span class="codecard__hint" id="fmt-hint"></span>
+              </div>
+              <div class="codecard__stats" id="fmt-stats"></div>
+              <div class="codecard__actions">
+                <button type="button" class="btn btn--ghost btn--sm" id="fmt-copy">
+                  <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+                <button type="button" class="btn btn--accent btn--sm" id="fmt-download">
+                  <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download</button>
+              </div>
+            </div>
+            <pre class="code code--wrap" id="fmt-output" tabindex="0" aria-label="Generated file contents"><code></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab C -->
+      <section class="wpanel wpanel--export" role="tabpanel" id="panel-export" aria-labelledby="tab-export" hidden>
+        <div class="exporter">
+          <div class="exporter__side">
+            <div>
+              <h2 class="panel-title">Code &amp; Token Export</h2>
+              <p class="panel-lede">Production files generated from the current system. Pick one to inspect it.</p>
+            </div>
+            <ul class="files" id="export-files"></ul>
+            <div class="bundle">
+              <div class="bundle__head">
+                <svg class="i i--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v13H4zM4 7l2-4h12l2 4M10 11h4"/></svg>
+                <div><h3>Single-file bundle</h3><p id="bundle-meta">.zip</p></div>
+              </div>
+              <ul class="bundle__list" id="bundle-list"></ul>
+              <button type="button" class="btn btn--accent btn--block" id="btn-zip">
+                <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download .zip bundle</button>
+            </div>
+          </div>
+          <div class="codecard exporter__view">
+            <div class="codecard__head">
+              <div class="codecard__file">
+                <span class="codecard__name" id="exp-file"></span>
+                <span class="codecard__hint" id="exp-hint"></span>
+              </div>
+              <div class="codecard__stats" id="exp-stats"></div>
+              <div class="codecard__actions">
+                <label class="check check--sm" id="dtcg-legacy-wrap" hidden><input type="checkbox" id="dtcg-legacy"><span>Legacy string values</span></label>
+                <button type="button" class="btn btn--ghost btn--sm" id="exp-copy">
+                  <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+                <button type="button" class="btn btn--accent btn--sm" id="exp-download">
+                  <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download</button>
+              </div>
+            </div>
+            <pre class="code" id="exp-output" tabindex="0" aria-label="Exported file contents"><code></code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="js/color.js"></script>
+  <script src="js/tokens.js"></script>
+  <script src="js/compiler.js"></script>
+  <script src="js/zip.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
