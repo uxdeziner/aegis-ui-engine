@@ -13,8 +13,10 @@ Turns AegisUI token JSON into a working Figma design system: **Local Variables w
 Use any of three sources:
 
 - **Presets tab**: the 12 presets are bundled into `ui.html` (re-injected by `npm run build`).
-- **Paste JSON**: from the gallery's **Copy JSON** button (`presets/index.html`), `AegisPresets.toJSON(id)`, or a Studio export.
+- **Paste JSON**: from the gallery's **Copy JSON** button (`presets/index.html`), `AegisPresets.toJSON(id)`, or the Studio's `aegis-tokens.json` export (Studio → Code & Token Export; also `tokens/aegis-tokens.json` in the Studio zip).
 - **Upload file**: any `presets/tokens/<id>.json`.
+
+To check a file before importing it, open the [Figma Bridge](index.html) page, which runs this plugin's validation and the JSON schema.
 
 The input must follow the AegisUI token format (`"aegis": { "format": "aegis-tokens", "version": "1.x" }`); see [`presets/schema/aegis-tokens.schema.json`](../presets/schema/aegis-tokens.schema.json). The plugin validates the document and checks that every alias resolves before it changes anything.
 

@@ -5,6 +5,9 @@
 (function (Aegis) {
   'use strict';
   const { color: C, tokens: T, compiler: CC, zip: Z, preview: P } = Aegis;
+  const K = window.AegisContract || null;          // shared/aegis-contract.js (canonical token contract)
+  const VAULT = window.AegisPresets || null;       // presets/aegis-presets.js (12 preset registry)
+  const vaultGet = (id) => { try { return VAULT ? VAULT.get(id) : null; } catch (e) { return null; } }; // get() throws on unknown ids
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const STORE_KEY = 'aegisui:v1';
@@ -16,13 +19,46 @@
     set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* storage unavailable */ } }
   };
 
-  let state = T.sanitizeState(store.get(STORE_KEY) || T.DEFAULT_STATE);
-  const prefs = Object.assign({ tab: 'preview', fmt: 'claude', target: 'vanilla', mode: 'strict', scales: false, legacy: false, exp: 'css', panelW: 380, previewMode: 'light', vp: 'desktop' }, store.get(PREFS_KEY) || {});
+  /** Read saved Studio state; empty, blocked or corrupt storage falls back to defaults. */
+  function loadSaved() {
+    let raw;
+    try { raw = localStorage.getItem(STORE_KEY); } catch (e) { return { status: 'unavailable' }; }
+    if (raw === null || raw === '') return { status: 'empty' };
+    try {
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('not an object');
+      return { status: 'ok', obj };
+    } catch (e) {
+      try { localStorage.removeItem(STORE_KEY); } catch (err) { /* ignore */ }
+      return { status: 'corrupt' };
+    }
+  }
+  const saved = loadSaved();
+  let state = T.sanitizeState(saved.status === 'ok' ? saved.obj : T.DEFAULT_STATE);
+  const PREF_DEFAULTS = { tab: 'preview', fmt: 'claude', target: 'vanilla', mode: 'strict', scales: false, legacy: false, exp: 'css', panelW: 380, previewMode: 'light', vp: 'desktop' };
+  const prefs = sanitizePrefs(store.get(PREFS_KEY));
+  function sanitizePrefs(p) {
+    const o = Object.assign({}, PREF_DEFAULTS);
+    if (!p || typeof p !== 'object' || Array.isArray(p)) return o;
+    const pick = (k, ok) => { if (ok(p[k])) o[k] = p[k]; };
+    pick('tab', (v) => ['preview', 'compiler', 'export'].includes(v));
+    pick('fmt', (v) => Object.prototype.hasOwnProperty.call(CC.FORMATS, v));
+    pick('target', (v) => Object.prototype.hasOwnProperty.call(CC.TARGETS, v));
+    pick('mode', (v) => v === 'strict' || v === 'pragmatic');
+    pick('scales', (v) => typeof v === 'boolean');
+    pick('legacy', (v) => typeof v === 'boolean');
+    pick('exp', (v) => ['css', 'json', 'canonical', 'config'].includes(v));
+    pick('panelW', (v) => Number.isFinite(v));
+    pick('previewMode', (v) => v === 'light' || v === 'dark');
+    pick('vp', (v) => ['desktop', 'tablet', 'mobile'].includes(v));
+    return o;
+  }
   let tk = null;
-  let presetKey = store.get(STORE_KEY) ? 'custom' : 'aegis';
+  const validPresetKey = (k) => !!(T.PRESETS[k] || (typeof k === 'string' && k.startsWith('vault:') && vaultGet(k.slice(6))));
+  let presetKey = saved.status === 'ok' ? (validPresetKey(saved.obj._preset) ? saved.obj._preset : 'custom') : 'aegis';
 
   const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
-  const saveState = debounce(() => store.set(STORE_KEY, state), 250);
+  const saveState = debounce(() => store.set(STORE_KEY, Object.assign({}, state, { _preset: presetKey })), 250);
   const savePrefs = debounce(() => store.set(PREFS_KEY, prefs), 250);
 
   const getPath = (obj, path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj);
@@ -97,10 +133,7 @@
     if (value != null) el.value = String(value);
   }
   function populate() {
-    const fonts = Object.entries(T.FONT_STACKS).map(([k, f]) => [k, f.label]);
-    fillSelect($('#t-heading'), fonts);
-    fillSelect($('#t-body'), fonts);
-    fillSelect($('#t-mono'), fonts);
+    renderFontOptions();
     fillSelect($('#t-ratio'), T.RATIOS.map((r) => [r.value, r.label]));
     fillSelect($('#m-easing'), Object.entries(T.EASINGS).map(([k, e]) => [k, e.label]));
     fillSelect($('#cc-target'), Object.entries(CC.TARGETS).map(([k, t]) => [k, t.label]), prefs.target);
@@ -109,14 +142,38 @@
     $('#dtcg-legacy').checked = !!prefs.legacy;
     renderPresetSelect();
   }
+  function renderFontOptions() {
+    const base = Object.entries(T.FONT_STACKS).map(([k, f]) => [k, f.label]);
+    ['heading', 'body', 'mono'].forEach((role) => {
+      const c = state.type.custom && state.type.custom[role];
+      fillSelect($('#t-' + role), c ? [['custom', c.label]].concat(base) : base);
+    });
+  }
+  /** Studio starters plus the 12 AegisUI presets (value "vault:<id>"). */
   function renderPresetSelect() {
-    const items = Object.entries(T.PRESETS).map(([k, p]) => [k, p.label]);
-    if (presetKey === 'custom') items.push(['custom', 'Custom (edited)']);
-    fillSelect($('#ds-preset'), items, presetKey);
+    const opt = (v, l) => `<option value="${escHTML(v)}">${escHTML(l)}</option>`;
+    let html = `<optgroup label="Studio starters">${Object.entries(T.PRESETS).map(([k, p]) => opt(k, p.label)).join('')}</optgroup>`;
+    if (VAULT && K) html += `<optgroup label="AegisUI presets (${VAULT.list().length})">${VAULT.list().map((p) => opt('vault:' + p.id, p.name)).join('')}</optgroup>`;
+    if (presetKey === 'custom') html += opt('custom', 'Custom (edited)');
+    const el = $('#ds-preset');
+    el.innerHTML = html;
+    el.value = presetKey;
+  }
+  /** Apply one of the 12 AegisUI presets through the canonical adapter. */
+  function applyVaultPreset(id, quiet) {
+    const doc = K ? vaultGet(id) : null;
+    if (!doc) return false;
+    state = T.sanitizeState(K.toStudioState(doc));
+    presetKey = 'vault:' + id;
+    syncControls(); update(); playMotion();
+    if (doc.meta && doc.meta.defaultMode) setPreviewMode(doc.meta.defaultMode);
+    if (!quiet) toast(`Loaded preset: ${doc.meta.name}`);
+    return true;
   }
 
   /* ───────────── Write state → controls ───────────── */
   function syncControls() {
+    renderFontOptions();
     $$('[data-bind]').forEach((el) => {
       const v = getPath(state, el.dataset.bind);
       if (el.type === 'radio') el.checked = String(v) === el.value;
@@ -201,6 +258,7 @@
 
     $('#ds-preset').addEventListener('change', (e) => {
       const key = e.target.value;
+      if (key.startsWith('vault:')) { applyVaultPreset(key.slice(6)); return; }
       if (!T.PRESETS[key]) return;
       state = T.sanitizeState(T.clone(T.PRESETS[key].state));
       presetKey = key;
@@ -387,6 +445,7 @@
   const EXPORTS = {
     css: { file: 'variables.css', ext: 'css', desc: 'CSS custom properties · light, dark, reduced motion', kind: 'css', mime: 'text/css;charset=utf-8' },
     json: { file: 'tokens.json', ext: 'json', desc: 'W3C Design Tokens (DTCG 2025.10)', kind: 'json', mime: 'application/json' },
+    canonical: { file: 'aegis-tokens.json', ext: 'json', desc: 'AegisUI token format · Figma plugin, Auditor, presets', kind: 'json', mime: 'application/json' },
     config: { file: 'aegis.config.json', ext: 'cfg', desc: 'Studio settings · import to keep editing', kind: 'json', mime: 'application/json' }
   };
   let exported = {};
@@ -404,6 +463,7 @@ Generated by **AegisUI** on ${new Date().toISOString().slice(0, 10)}.
 | Path | Purpose |
 | --- | --- |
 | \`styles/variables.css\` | CSS custom properties (\`--${p}-*\`): OKLCH-derived palettes, semantic light/dark roles, type scale, ${state.space.grid}px spacing grid, radius, elevation, motion. |
+| \`tokens/aegis-tokens.json\` | The canonical AegisUI token document (\`aegis-tokens\` v1, see \`presets/schema/aegis-tokens.schema.json\`). Import it with the AegisUI Token Sync Figma plugin or validate against it in the Auditor. |
 | \`tokens/tokens.json\` | The same tokens in W3C Design Tokens (DTCG 2025.10) format for Style Dictionary, Tokens Studio, Figma variables and other tools. |
 | \`CLAUDE.md\` | Context for Claude Code. Keep it at the repository root. |
 | \`.cursorrules\` | Always-on rules for Cursor. Keep it at the repository root. |
@@ -449,6 +509,7 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
       { name: root + 'README.md', content: readme() },
       { name: root + 'styles/variables.css', content: exported.css },
       { name: root + 'tokens/tokens.json', content: exported.json },
+      { name: root + 'tokens/aegis-tokens.json', content: exported.canonical },
       { name: root + 'CLAUDE.md', content: compiled.claude },
       { name: root + '.cursorrules', content: compiled.cursor },
       { name: root + 'AGENTS.md', content: compiled.agents },
@@ -460,6 +521,7 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
     exported.css = T.toCSS(tk);
     exported.json = T.toDTCG(tk, { legacy: prefs.legacy });
     exported.config = configJSON();
+    exported.canonical = K ? JSON.stringify(canonicalDoc(), null, 2) + '\n' : '// shared/aegis-contract.js did not load\n';
     $('#export-files').innerHTML = Object.entries(EXPORTS).map(([k, f]) =>
       `<li><button type="button" class="file-btn" data-exp="${k}" ${prefs.exp === k ? 'aria-current="true"' : ''}>
         <span class="file-btn__ext" aria-hidden="true">${f.ext}</span>
@@ -495,6 +557,7 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
     renderInstruments();
     renderOutputsSoon();
     saveState();
+    saveBaseline();
   }
 
   /* ───────────── Workspace tabs ───────────── */
@@ -524,6 +587,50 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
     select($('#tab-' + (['preview', 'compiler', 'export'].includes(prefs.tab) ? prefs.tab : 'preview')));
   }
 
+  function setPreviewMode(m) {
+    $('#preview-root').dataset.mode = m;
+    $('#mode-toggle').setAttribute('aria-checked', String(m === 'dark'));
+    prefs.previewMode = m; savePrefs();
+  }
+
+  /* ───────────── Active token baseline (shared with the Auditor) ───────────── */
+  let lastBaselineJSON = '';
+  let baselineWarned = false;
+  /** Studio's own --<prefix>-* variables (light mode) so the Auditor recognises both naming schemes. */
+  function studioVars() {
+    const css = T.toCSS(tk, { media: false, header: false });
+    const block = css.slice(0, css.indexOf('}'));
+    const out = {};
+    block.replace(/^\s*(--[\w-]+):\s*([^;]+);/gm, (_, k, v) => { out[k] = v.trim(); return ''; });
+    return out;
+  }
+  function canonicalDoc() { return K.fromStudio(tk, { defaultMode: state.source ? state.source.defaultMode : 'light' }); }
+  const saveBaseline = debounce(() => {
+    if (!K) return;
+    const doc = canonicalDoc();
+    const json = JSON.stringify(doc) + state.prefix;
+    if (json === lastBaselineJSON) return;
+    const res = K.writeBaseline(doc, { origin: 'studio', presetId: state.source ? state.source.presetId : null, prefix: state.prefix, extraVars: studioVars() });
+    if (res.ok) { lastBaselineJSON = json; baselineWarned = false; }
+    else if (!baselineWarned) { baselineWarned = true; toast(`The Auditor can't see these tokens: ${res.reason}`); }
+  }, 300);
+
+  /** Another tab changed Studio settings: adopt them without echoing a write back. */
+  function bindCrossTab() {
+    window.addEventListener('storage', (e) => {
+      if (e.key !== STORE_KEY || e.newValue === null) return;
+      let obj;
+      try { obj = JSON.parse(e.newValue); } catch (err) { return; }
+      if (!obj || typeof obj !== 'object') return;
+      const next = T.sanitizeState(obj);
+      if (JSON.stringify(next) === JSON.stringify(state)) return;
+      state = next;
+      presetKey = validPresetKey(obj._preset) ? obj._preset : 'custom';
+      syncControls(); update();
+      toast('Updated from another tab');
+    });
+  }
+
   /* ───────────── Preview toolbar ───────────── */
   function bindPreview(api) {
     const sw = $('#screen-switch');
@@ -536,10 +643,8 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
     vp.addEventListener('click', (e) => { const b = e.target.closest('[data-vp]'); if (b) setVp(b.dataset.vp); });
     setVp(prefs.vp);
 
-    const mt = $('#mode-toggle');
-    const setMode = (m) => { $('#preview-root').dataset.mode = m; mt.setAttribute('aria-checked', String(m === 'dark')); prefs.previewMode = m; savePrefs(); };
-    mt.addEventListener('click', () => setMode(prefs.previewMode === 'dark' ? 'light' : 'dark'));
-    setMode(prefs.previewMode);
+    $('#mode-toggle').addEventListener('click', () => setPreviewMode(prefs.previewMode === 'dark' ? 'light' : 'dark'));
+    setPreviewMode(prefs.previewMode);
   }
 
   /* ───────────── Splitter ───────────── */
@@ -603,9 +708,18 @@ Don't edit these files by hand. Import \`aegis.config.json\` into AegisUI, chang
     renderCompilerTabs();
     $('#fmt-panel').setAttribute('aria-labelledby', 'fmt-tab-' + prefs.fmt);
     update();
+    bindCrossTab();
+    if (saved.status === 'corrupt') toast('Saved Studio settings were unreadable, so the defaults were loaded.');
+    // ?preset=<id> (e.g. from the Preset Vault's "Open in Studio") seeds the generator once.
+    let qp = null;
+    try { qp = new URLSearchParams(location.search).get('preset'); } catch (e) { qp = null; }
+    if (qp && /^[a-z0-9-]{1,40}$/.test(qp)) {
+      if (!applyVaultPreset(qp)) toast(`Unknown preset "${qp}". Kept your current settings.`);
+      try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* file:// or sandbox */ }
+    }
     bindWorkspaceTabs();
     setTimeout(() => playMotion(), 400);
-    Aegis.app = { get state() { return state; }, get tokens() { return tk; }, renderAll };
+    Aegis.app = { get state() { return state; }, get tokens() { return tk; }, get presetKey() { return presetKey; }, renderAll, canonicalDoc: () => (K ? canonicalDoc() : null), applyVaultPreset };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

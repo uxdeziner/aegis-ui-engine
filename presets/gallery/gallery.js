@@ -217,6 +217,8 @@
     document.querySelectorAll('#g-modes button').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.mode === state.mode)); });
     document.querySelectorAll('.g-preset').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.id === state.theme)); });
     document.title = meta.name + ' · AegisUI Presets';
+    var openStudio = $('#g-open-studio');
+    if (openStudio) { openStudio.href = '../index.html?preset=' + encodeURIComponent(meta.id); openStudio.setAttribute('aria-label', 'Open ' + meta.name + ' in Studio'); }
     writeHash();
   }
 
@@ -269,7 +271,13 @@
   $('#g-views').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { state.view = b.dataset.view; render(); } });
   $('#g-modes').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { state.mode = b.dataset.mode; render(); } });
   $('#g-filter').addEventListener('input', renderList);
-  $('#g-menu').addEventListener('click', function () { var s = $('#g-sidebar'); s.classList.toggle('is-open'); this.setAttribute('aria-expanded', String(s.classList.contains('is-open'))); });
+  $('#g-menu').addEventListener('click', function () {
+    var s = $('#g-sidebar');
+    s.classList.toggle('is-open');
+    // Open the drawer directly under the sticky top bar, wherever it sits (the shared module nav can push it down).
+    if (s.classList.contains('is-open')) s.style.top = Math.max(0, Math.round($('.g-topbar').getBoundingClientRect().bottom)) + 'px';
+    this.setAttribute('aria-expanded', String(s.classList.contains('is-open')));
+  });
   $('#g-dl-json').addEventListener('click', function () { download('aegis-' + state.theme + '.json', P.toJSON(state.theme), 'application/json'); toast('Downloaded aegis-' + state.theme + '.json'); });
   $('#g-dl-css').addEventListener('click', function () { download('aegis-' + state.theme + '.css', cssFor(state.theme), 'text/css'); toast('Downloaded aegis-' + state.theme + '.css'); });
   $('#g-copy-json').addEventListener('click', function () {

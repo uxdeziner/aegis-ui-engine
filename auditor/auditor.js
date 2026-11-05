@@ -32,6 +32,23 @@
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable */ } },
   };
+  /* Active token baseline (shared/aegis-contract.js). The Studio writes the tokens the
+   * user is working with to localStorage; the Auditor validates pasted code against them. */
+  const K = window.AegisContract || null;
+  const LS_BASELINE = 'aegis.auditor.baseline';
+  const baseline = { mode: store.get(LS_BASELINE, 'active') === 'none' ? 'none' : 'active', read: { status: 'unavailable' }, flat: null, colors: [] };
+  function loadBaseline() {
+    baseline.read = K ? K.readBaseline() : { status: 'unavailable' };
+    baseline.flat = null; baseline.colors = [];
+    if (baseline.read.status === 'ok') {
+      const rec = baseline.read.record;
+      baseline.flat = K.flatten(rec.doc, 'light', rec.extraVars);
+      baseline.prefixes = ['--aegis-'].concat(rec.prefix ? ['--' + rec.prefix + '-'] : []);
+    }
+  }
+  const activeBaseline = () => (baseline.mode === 'active' && baseline.flat ? baseline : null);
+  const SAFE_CSS_VALUE = (v) => typeof v === 'string' && !/[;{}<>]|\/\*/.test(v);
+
   function lineIndex(src) {
     const starts = [0];
     for (let i = 0; i < src.length; i++) if (src.charCodeAt(i) === 10) starts.push(i + 1);
@@ -375,6 +392,16 @@
     $$('*', clone).forEach((el) => Array.from(el.attributes).forEach((a) => {
       if (/^on[a-z]+$/i.test(a.name)) { el.setAttribute('data-aegis-' + a.name.toLowerCase(), a.value); el.removeAttribute(a.name); }
     }));
+    const bl = activeBaseline();
+    if (bl) {
+      const head = clone.querySelector('head');
+      if (head) {
+        const st = doc.createElement('style');
+        st.setAttribute('data-aegis-baseline', '');
+        st.textContent = ':root{' + Object.keys(bl.flat.vars).filter((k) => /^--[a-z0-9-]+$/i.test(k) && SAFE_CSS_VALUE(bl.flat.vars[k])).map((k) => k + ':' + bl.flat.vars[k] + ';').join('') + '}';
+        head.insertBefore(st, head.firstChild);
+      }
+    }
     const srcdoc = '<!DOCTYPE html>\n' + clone.outerHTML;
     return { src, doc, isFullDoc, lineOf, idMap, styles, srcdoc, elementCount: idMap.size };
   }
@@ -480,9 +507,24 @@
     }
     if (dupes.length) add({ pillar: 'tokens', rule: 'Token · Palette', sev: 'moderate', title: 'Near-duplicate colors', count: dupes.length, detail: `Perceptually identical colors (ΔE < 4.5) were defined separately: ${dupes.slice(0, 4).join(', ')}${dupes.length > 4 ? ', …' : ''}. Classic AI drift.`, fix: 'Merge them into a single token.' });
     if (stats.tokenDefs === 0 && stats.rawDecls >= 5) add({ pillar: 'tokens', rule: 'Token · System', sev: 'serious', title: 'No design tokens defined', count: 1, detail: `${stats.rawDecls} declarations use raw values and there is no :root token layer at all.`, fix: 'Introduce a :root block of CSS custom properties and reference it everywhere.' });
+    const bl = activeBaseline();
     stats.used.forEach((u, name) => {
-      if (!stats.defined.has(name) && !u.fallback) add({ pillar: 'tokens', rule: 'Token · Reference', sev: 'serious', title: 'Undefined custom property', line: u.line, detail: `var(${name}) is used but never defined and has no fallback, so the declaration silently fails.`, fix: `Define ${name} in :root or add a fallback.` });
+      if (stats.defined.has(name) || u.fallback) return;
+      if (bl && bl.flat.vars[name] !== undefined) return; // provided by the active baseline
+      const looksLikeBaseline = bl && bl.prefixes.some((pre) => name.startsWith(pre));
+      if (looksLikeBaseline) add({ pillar: 'tokens', rule: 'Token · Baseline', sev: 'serious', title: 'Token not in the active baseline', line: u.line, detail: `var(${name}) uses the baseline's naming, but “${bl.read.record.name}” has no such token, so the declaration silently fails.`, fix: 'Pick an existing token from the baseline (see Studio → Code & Token Export), or add it in Studio.' });
+      else add({ pillar: 'tokens', rule: 'Token · Reference', sev: 'serious', title: 'Undefined custom property', line: u.line, detail: `var(${name}) is used but never defined and has no fallback, so the declaration silently fails.`, fix: `Define ${name} in :root or add a fallback.` });
     });
+    if (bl) {
+      if (!bl.colors.length) bl.colors = bl.flat.palette.map((c) => ({ token: c.token, hex: c.hex, c: parseColor(c.hex) })).filter((x) => x.c);
+      const off = [];
+      opaque.forEach(({ k, c }) => {
+        let best = null, dist = Infinity;
+        bl.colors.forEach((b) => { if (b.c.a !== 1) return; const d = deltaE(c, b.c); if (d < dist) { dist = d; best = b; } });
+        if (dist > 2.3) off.push({ k, best, dist });
+      });
+      if (off.length) add({ pillar: 'tokens', rule: 'Token · Baseline', sev: 'moderate', title: 'Colors outside the active token baseline', count: off.length, detail: `${plural(off.length, 'color')} ${off.length === 1 ? 'does' : 'do'} not match any token in “${bl.read.record.name}” (ΔE > 2.3): ${off.slice(0, 4).map((o) => `${o.k}${o.best ? ` (closest ${o.best.token}, ΔE ${o.dist.toFixed(1)})` : ''}`).join('; ')}${off.length > 4 ? '; …' : ''}.`, fix: 'Replace them with var(--…) tokens from the active baseline, or add the color to the system in Studio.' });
+    }
 
     // CSS-level accessibility signal: focus indicator removed
     if (stats.outlineKills.length && !stats.hasFocusStyle) {
@@ -2368,11 +2410,42 @@ h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 44px; text-alig
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (e.shiftKey) openRefactor(); else runAudit(); }
   });
 
+  /* ---------- Token baseline ---------- */
+  const blSelect = $('#baseline-mode'), blInfo = $('#baseline-info'), blClear = $('#baseline-clear');
+  function ago(iso) {
+    const t = Date.parse(iso); if (!Number.isFinite(t)) return '';
+    const s = Math.max(0, Math.round((Date.now() - t) / 1000));
+    return s < 60 ? 'just now' : s < 3600 ? `${Math.round(s / 60)} min ago` : s < 86400 ? `${Math.round(s / 3600)} h ago` : new Date(t).toLocaleDateString();
+  }
+  function renderBaseline() {
+    if (!blSelect) return;
+    blSelect.value = baseline.mode;
+    const r = baseline.read;
+    blClear.hidden = r.status !== 'corrupt';
+    document.body.dataset.baseline = r.status;
+    if (!K) { blInfo.textContent = 'Baseline support did not load (shared/aegis-contract.js), so only generic checks run.'; return; }
+    if (r.status === 'ok') {
+      const rec = r.record;
+      const from = rec.origin === 'studio' ? `Studio${rec.presetId ? ` · seeded from ${rec.presetId}` : ''}` : rec.origin;
+      blInfo.textContent = `${rec.name} · ${from} · ${baseline.flat.names.length} tokens · saved ${ago(rec.savedAt)}${baseline.mode === 'none' ? ' · not applied' : ''}`;
+    } else if (r.status === 'empty') blInfo.textContent = 'No active tokens yet. Open the Studio (or pick a preset there) and this panel picks them up automatically.';
+    else if (r.status === 'corrupt') blInfo.textContent = `Saved tokens were ignored: ${r.reason} Generic checks only.`;
+    else blInfo.textContent = 'Browser storage is unavailable here, so the Auditor cannot read the Studio\u2019s tokens. Generic checks only.';
+  }
+  const reauditSoon = debounce(() => { if (ui.code.value.trim()) runAudit(); }, 250);
+  loadBaseline();
+  if (blSelect) {
+    blSelect.addEventListener('change', () => { baseline.mode = blSelect.value === 'none' ? 'none' : 'active'; store.set(LS_BASELINE, baseline.mode); renderBaseline(); reauditSoon(); });
+    blClear.addEventListener('click', () => { if (K) K.clearBaseline(); loadBaseline(); renderBaseline(); reauditSoon(); toast('Cleared the unreadable saved tokens.'); });
+  }
+  if (K) K.onBaselineChange(() => { loadBaseline(); renderBaseline(); if (baseline.mode === 'active') reauditSoon(); });
+  renderBaseline();
+
   /* ---------- Boot ---------- */
   const saved = store.get(LS_CODE, '');
   if (saved.trim()) setCode(saved);
   else { setCode(PRESETS[0].code); const first = $('.preset', ui.presetBtns); if (first) first.setAttribute('aria-current', 'true'); }
 
   // Expose the engine for power users / tests (no globals otherwise).
-  window.AegisAuditor = { runAuditOn, refactorSource, parseCSS, contrast, parseColor, PRESETS };
+  window.AegisAuditor = { runAuditOn, refactorSource, parseCSS, contrast, parseColor, PRESETS, get baseline() { return { mode: baseline.mode, status: baseline.read.status, name: baseline.read.record ? baseline.read.record.name : null, tokens: baseline.flat ? baseline.flat.names.length : 0 }; } };
 })();

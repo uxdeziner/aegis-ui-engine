@@ -24,6 +24,7 @@
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7L16 2Z' fill='%232c56e0'/%3E%3Cpath d='m11 16 3.5 3.5L21.5 12' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="showcase.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
   <script>
     /* Apply a saved theme before first paint to avoid a flash. */
     try { var t = localStorage.getItem("aegis-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
@@ -49,6 +50,17 @@
   </svg>
 
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html" aria-current="page">Showcase</a></li>
+    </ul>
+  </nav>
 
   <header class="site-header">
     <div class="container site-header__inner">

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Figma Bridge · AegisUI</title>
+  <meta name="description" content="Install and use the AegisUI Token Sync Figma plugin, and check a token file with the same validation the plugin runs.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z' fill='%23d9a441'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="bridge.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="index.html" aria-current="page">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+    </ul>
+  </nav>
+
+  <main id="main" class="bridge">
+    <header class="bridge-hero">
+      <p class="eyebrow">Figma Bridge</p>
+      <h1>AegisUI Token Sync</h1>
+      <p class="lede">A Figma plugin that turns an AegisUI token file into Local Variables (Light and Dark), text and effect styles, token-bound components and a style guide page. It runs locally, makes no network requests and is safe to re-run.</p>
+      <p class="callout" role="note"><strong>Status:</strong> the plugin is tested end to end against a strict Figma API mock (<code>npm run test:plugin</code>). It has not yet been checked in the Figma desktop app, so treat the first real import as a trial run.</p>
+    </header>
+
+    <section aria-labelledby="install-title" class="card">
+      <h2 id="install-title">Install (development)</h2>
+      <ol class="steps">
+        <li>Download or clone this repository so the <code>figma-plugin/</code> folder is on your computer.</li>
+        <li>In the Figma desktop app, choose <strong>Plugins → Development → Import plugin from manifest…</strong></li>
+        <li>Select <code>figma-plugin/manifest.json</code>.</li>
+        <li>Run <strong>Plugins → Development → AegisUI Token Sync</strong>.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="input-title" class="card">
+      <h2 id="input-title">What to import</h2>
+      <p>The plugin accepts the canonical AegisUI token format (<code>"aegis": { "format": "aegis-tokens", "version": "1.x" }</code>), specified in <a href="../presets/schema/aegis-tokens.schema.json">presets/schema/aegis-tokens.schema.json</a>. Any of these works:</p>
+      <ul class="sources">
+        <li><strong>Studio:</strong> <a href="../index.html">Studio</a> → Code &amp; Token Export → <code>aegis-tokens.json</code>. It's also included in the Studio's .zip bundle as <code>tokens/aegis-tokens.json</code>.</li>
+        <li><strong>Preset Vault:</strong> <a href="../presets/index.html">Preset Vault</a> → Copy JSON or Download JSON, or any <code>presets/tokens/&lt;id&gt;.json</code>.</li>
+        <li><strong>Bundled presets:</strong> the plugin's Presets tab ships all 12 presets.</li>
+      </ul>
+      <p class="muted">Studio's older exports, <code>variables.css</code> and the W3C DTCG <code>tokens.json</code>, are unchanged and are not plugin input.</p>
+    </section>
+
+    <section aria-labelledby="check-title" class="card checker">
+      <h2 id="check-title">Check a token file before importing</h2>
+      <p>This runs the plugin's own validation (the same checks, ported to <code>shared/aegis-contract.js</code> and kept in sync by the test suite) plus the JSON schema when this page is served over HTTP.</p>
+      <div class="checker-actions">
+        <button type="button" class="btn btn-primary" id="use-active">Use active Studio tokens</button>
+        <label class="btn" for="file-input">Upload a .json file</label>
+        <input type="file" id="file-input" accept="application/json,.json" class="sr-only">
+        <button type="button" class="btn" id="download-active" disabled>Download active aegis-tokens.json</button>
+      </div>
+      <p class="muted" id="active-info" role="status"></p>
+      <label class="field-label" for="json-input">Token JSON</label>
+      <textarea id="json-input" rows="10" spellcheck="false" placeholder='{ "aegis": { "format": "aegis-tokens", "version": "1.0.0" }, … }'></textarea>
+      <div class="checker-actions">
+        <button type="button" class="btn btn-primary" id="validate">Validate</button>
+      </div>
+      <div class="results" id="results" role="status" aria-live="polite"></div>
+    </section>
+
+    <section aria-labelledby="gen-title" class="card">
+      <h2 id="gen-title">What the plugin generates</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">Figma output by collection</caption>
+          <thead><tr><th scope="col">Output</th><th scope="col">Contents</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Primitives</th><td>Color ramps as variables, hidden from pickers</td></tr>
+            <tr><th scope="row">Semantic (Light, Dark)</th><td>bg, fg, border, brand, accent, status and data roles aliased to primitives</td></tr>
+            <tr><th scope="row">Dimensions, Typography, Motion</th><td>Spacing, radius, border widths, sizes, font families and weights, durations, easings</td></tr>
+            <tr><th scope="row">Components</th><td>Button, input, card, badge, table, tabs, modal, tooltip, nav and more, aliased to the above</td></tr>
+            <tr><th scope="row">Styles</th><td>16 text styles and light/dark elevation effect styles</td></tr>
+            <tr><th scope="row">Style guide page</th><td>Foundations in both modes, token-bound component sets and component-token tables</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every variable carries WEB code syntax (<code>var(--aegis-…)</code>). Re-running updates collections, variables and styles by name, so existing bindings survive. Full details are in <code>figma-plugin/README.md</code>.</p>
+    </section>
+
+    <section aria-labelledby="notes-title" class="card">
+      <h2 id="notes-title">Known limitations</h2>
+      <ul>
+        <li>Fonts that aren't installed in Figma are replaced with the closest weight of Inter, and the plugin lists each substitution. Studio exports name the first concrete family in a font stack (for system stacks that's often <code>Segoe UI</code>), which usually means Inter in Figma.</li>
+        <li>Studio has no separate accent hue, so in Studio exports the canonical <code>accent</code> roles alias the info ramp.</li>
+        <li>On Figma plans that limit modes per collection, Dark goes into a separate <code>Semantic (Dark)</code> collection.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../shared/aegis-contract.js"></script>
+  <script src="bridge.js"></script>
+</body>
+</html>

@@ -7,9 +7,21 @@
   <meta name="description" content="Paste AI-generated HTML/CSS and get a 0–100 score across token compliance, WCAG 2.2 contrast &amp; ARIA, semantic HTML and visual hierarchy, an X-Ray overlay of every issue, and a one-click refactor to clean :root tokens.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%237c8cff'/%3E%3Cpath d='m11 16 3.5 3.5L21.5 12' fill='none' stroke='%230b0d12' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="auditor.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
 </head>
 <body>
   <a class="skip-link" href="#report">Skip to audit report</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html" aria-current="page">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+    </ul>
+  </nav>
 
   <header class="app-header">
     <div class="brand">
@@ -105,6 +117,17 @@
         </button>
       </div>
       <div class="report-scroll">
+        <div class="baseline" id="baseline">
+          <div class="baseline-row">
+            <label class="baseline-label" for="baseline-mode">Token baseline</label>
+            <select id="baseline-mode" class="baseline-select">
+              <option value="active">Active tokens (from Studio)</option>
+              <option value="none">None (generic checks)</option>
+            </select>
+            <button type="button" class="btn btn-ghost btn-sm" id="baseline-clear" hidden>Clear saved tokens</button>
+          </div>
+          <p class="baseline-info" id="baseline-info" role="status" aria-live="polite"></p>
+        </div>
         <div class="score-hero">
           <div class="score-ring" data-band="bad">
             <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -173,6 +196,7 @@
   <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
   <iframe id="sandbox" class="sandbox-frame" title="Refactor verification sandbox" sandbox="allow-same-origin" aria-hidden="true" tabindex="-1"></iframe>
 
+  <script src="../shared/aegis-contract.js"></script>
   <script src="auditor.js"></script>
 </body>
 </html>

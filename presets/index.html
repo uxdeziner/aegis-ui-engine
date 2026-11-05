@@ -10,8 +10,20 @@
   <link rel="stylesheet" href="aegis-presets.css">
   <link rel="stylesheet" href="aegis-components.css">
   <link rel="stylesheet" href="gallery/gallery.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
 </head>
 <body class="g-body">
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html" aria-current="page">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+    </ul>
+  </nav>
   <header class="g-topbar">
     <div class="g-brand">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="currentColor" opacity=".18"/><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -22,6 +34,7 @@
     </button>
     <div class="g-topbar__spacer"></div>
     <div class="g-actions">
+      <a class="g-btn g-btn--primary" id="g-open-studio" href="../index.html" title="Seed the Studio generator from this preset">Open in Studio</a>
       <button class="g-btn" id="g-copy-json" title="Copy AegisUI token JSON (paste into the Figma plugin)">Copy JSON</button>
       <button class="g-btn" id="g-dl-json">Download JSON</button>
       <button class="g-btn" id="g-dl-css">Download CSS</button>
