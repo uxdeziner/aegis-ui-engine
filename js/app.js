@@ -58,8 +58,31 @@
       }
     }
   }
-  function download(name, content, type = 'text/plain;charset=utf-8') {
+  // Inside a claude.ai artifact, files go through the viewer's `downloads` capability;
+  // everywhere else (local file, any web host) a normal blob download is used.
+  let dlCap = null;
+  const dlReady = window.claude && typeof window.claude.use === 'function'
+    ? window.claude.use('downloads').then((d) => { dlCap = d; }).catch(() => { dlCap = null; })
+    : null;
+
+  async function download(name, content, type = 'text/plain;charset=utf-8') {
     const blob = content instanceof Blob ? content : new Blob([content], { type });
+    if (dlReady) {
+      await dlReady;
+      if (dlCap) {
+        try {
+          await dlCap.save({ filename: name, data: blob });
+          toast(`Saved ${name}`);
+        } catch (e) {
+          const code = e && e.code;
+          if (code === 'declined') return;
+          if (code === 'rejected_extension') toast(`This viewer can't save ${name}. Use Copy, or download the .zip bundle.`);
+          else if (code === 'rate_limited') toast('A save prompt is already open.');
+          else toast('Saving files is unavailable here. Use Copy instead.');
+        }
+        return;
+      }
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name; a.rel = 'noopener';
