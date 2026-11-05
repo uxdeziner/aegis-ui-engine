@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisUI Presets</title>
+  <meta name="description" content="Twelve enterprise design-system presets for AegisUI Studio — preview, inspect tokens and export JSON for the Figma plugin.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="aegis-presets.css">
+  <link rel="stylesheet" href="aegis-components.css">
+  <link rel="stylesheet" href="gallery/gallery.css">
+</head>
+<body class="g-body">
+  <header class="g-topbar">
+    <div class="g-brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="currentColor" opacity=".18"/><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><strong>AegisUI</strong> Presets</span>
+    </div>
+    <button class="g-menu-btn" id="g-menu" aria-label="Show preset list" aria-controls="g-sidebar" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="g-topbar__spacer"></div>
+    <div class="g-actions">
+      <button class="g-btn" id="g-copy-json" title="Copy AegisUI token JSON (paste into the Figma plugin)">Copy JSON</button>
+      <button class="g-btn" id="g-dl-json">Download JSON</button>
+      <button class="g-btn" id="g-dl-css">Download CSS</button>
+    </div>
+  </header>
+
+  <div class="g-layout">
+    <aside class="g-sidebar" id="g-sidebar" aria-label="Presets">
+      <div class="g-sidebar__head">
+        <span>12 presets</span>
+        <input type="search" id="g-filter" class="g-search" placeholder="Filter…" aria-label="Filter presets">
+      </div>
+      <ul class="g-preset-list" id="g-preset-list" role="listbox" aria-label="Preset"></ul>
+    </aside>
+
+    <main class="g-main">
+      <section class="g-hero" id="g-hero" aria-live="polite"></section>
+      <div class="g-toolbar">
+        <div class="g-seg" role="tablist" aria-label="View" id="g-views">
+          <button role="tab" data-view="dashboard">Dashboard</button>
+          <button role="tab" data-view="components">Components</button>
+          <button role="tab" data-view="tokens">Tokens</button>
+          <button role="tab" data-view="type">Typography</button>
+          <button role="tab" data-view="a11y">Accessibility</button>
+        </div>
+        <div class="g-seg" role="radiogroup" aria-label="Color mode" id="g-modes">
+          <button role="radio" data-mode="light">Light</button>
+          <button role="radio" data-mode="dark">Dark</button>
+          <button role="radio" data-mode="split">Side by side</button>
+        </div>
+      </div>
+      <div id="g-stage" class="g-stage"></div>
+    </main>
+  </div>
+
+  <div class="g-toast" id="g-toast" role="status" aria-live="polite"></div>
+  <script src="aegis-presets.js"></script>
+  <script src="gallery/gallery.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+// Healthcare Clean — calm clinical teal, generous spacing, high legibility.
+export default {
+  id: 'healthcare-clean',
+  order: 3,
+  name: 'Healthcare Clean',
+  category: 'Healthcare',
+  description: 'Clinical, reassuring teal system with generous whitespace, legible Lexend headings and unambiguous status colors for patient & EHR tools.',
+  tags: ['healthcare', 'clinical', 'calm', 'accessible'],
+  defaultMode: 'light',
+  density: 'comfortable',
+  fonts: {
+    display: { family: 'Lexend', weights: [400, 500, 600, 700] },
+    body: { family: 'Source Sans 3', weights: [400, 500, 600, 700] },
+    mono: { family: 'Source Code Pro', weights: [400, 500], category: 'mono' },
+  },
+  palette: {
+    neutral: { h: 210, c: 0.01 },
+    brand: { h: 192, c: 0.12, hueShift: 6 },
+    accent: { h: 255, c: 0.13 },
+    success: { h: 155, c: 0.14 },
+    warning: { h: 70, c: 0.15 },
+    danger: { h: 20, c: 0.19 },
+    info: { h: 240, c: 0.12 },
+    plum: { h: 320, c: 0.13 },
+  },
+  data: ['brand', 'accent', 'plum', 'warning', 'success', 'danger'],
+  semantic: {
+    light: { 'bg.canvas': 'neutral.50', 'brand.default': 'brand.700', 'fg.link': 'brand.700' },
+  },
+  type: {
+    scale: 'comfortable',
+    headingFamily: 'display',
+    weights: { display: 600, heading: 500, label: 600 },
+    tracking: { display: -0.02, heading: -0.01 },
+    lineHeights: { body: 1.6, heading: 1.3 },
+  },
+  radius: { xs: 4, sm: 6, md: 10, lg: 14, xl: 18, '2xl': 24 },
+  shadow: 'soft',
+  components: {
+    button: { radius: ['dimension', '{dimension.radius.md}'], 'font-weight': ['fontWeight', '{typography.fontWeight.semibold}'] },
+    input: { radius: ['dimension', '{dimension.radius.md}'] },
+    card: { radius: ['dimension', '{dimension.radius.lg}'], shadow: ['shadow', '{shadow.sm}'] },
+    modal: { radius: ['dimension', '{dimension.radius.2xl}'] },
+    nav: { 'item-radius': ['dimension', '{dimension.radius.md}'] },
+    focus: { 'ring-width': ['dimension', 3] },
+  },
+};
