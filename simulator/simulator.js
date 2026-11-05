@@ -8,7 +8,8 @@
  * Integration hooks are documented in simulator/README.md:
  *   window.AegisSimulator      public API (state, presets, review, report)
  *   URL ?theme=&mode=&vision=&washout=&scale=&rtl=&focus=&width=   (also #hash)
- *   localStorage bridge keys    read-only probe for the shared active preset
+ *   shared/aegis-contract.js    canonical active tokens (localStorage "aegis:active-tokens:v1"), read-only
+ *   legacy localStorage keys    read-only fallback probe for an active preset id
  *   window event "aegis:preset-change"  { detail: { id, mode } }
  */
 (function () {
@@ -17,7 +18,7 @@
   var VERSION = '1.0.0';
   var STORE_KEY = 'aegis-simulator:v1';            // simulator settings (owned here)
   var SESSION_PRESET_KEY = 'aegis-simulator:preset'; // preset picked inside the simulator (this tab)
-  var BRIDGE_KEYS = ['aegis:active-preset', 'aegisui:active-preset', 'aegis-active-preset', 'aegisui:preset']; // read-only
+  var BRIDGE_KEYS = ['aegis:active-preset', 'aegisui:active-preset', 'aegis-active-preset', 'aegisui:preset']; // legacy, read-only fallback
   var DEFAULT_PRESET = 'enterprise-saas';
   var FALLBACK_PRESETS = [
     ['enterprise-saas', 'Enterprise SaaS', 'light'], ['fintech-terminal', 'Fintech Terminal', 'dark'],
@@ -151,6 +152,16 @@
     if (v && typeof v === 'object') return { id: v.id || v.theme || v.preset, mode: v.mode };
     return null;
   }
+  /** Preset behind the canonical active tokens (written by the Studio), via shared/aegis-contract.js. */
+  function activeTokensPreset() {
+    var K = window.AegisContract;
+    if (!K || typeof K.readBaseline !== 'function') return null;
+    var r;
+    try { r = K.readBaseline(); } catch (e) { return null; }
+    if (!r || r.status !== 'ok' || !r.record.presetId) return null; // empty, corrupt, blocked, or a Studio system not seeded from a preset
+    var meta = r.record.doc && r.record.doc.meta;
+    return { id: r.record.presetId, mode: meta && meta.defaultMode, source: 'active-tokens' };
+  }
   function resolvePreset() {
     var params = readParams();
     var candidates = [];
@@ -161,6 +172,8 @@
       var bridge = window.AegisTokenBridge;
       if (bridge && typeof bridge.getActivePreset === 'function') { var b = bridge.getActivePreset(); if (b) candidates.push({ id: b.id, mode: b.mode, source: 'bridge' }); }
     } catch (e) { /* ignore a faulty bridge */ }
+    var active = activeTokensPreset();
+    if (active) candidates.push(active);
     BRIDGE_KEYS.forEach(function (k) { var p = parsePresetValue(storageGet('localStorage', k)); if (p) { p.source = 'storage:' + k; candidates.push(p); } });
     var themeMode = storageGet('localStorage', 'aegis-theme'); // showcase light/dark preference
     for (var i = 0; i < candidates.length; i++) {
@@ -864,6 +877,14 @@
       var p = parsePresetValue(e.newValue);
       if (p && presetInfo(p.id)) { applyPreset(p.id, p.mode, { source: 'storage:' + e.key }); scheduleRefresh(); }
     });
+    // Canonical active tokens changed in another tab (e.g. a preset picked in the Studio).
+    if (window.AegisContract && typeof window.AegisContract.onBaselineChange === 'function') {
+      window.AegisContract.onBaselineChange(function () {
+        if (storageGet('sessionStorage', SESSION_PRESET_KEY)) return; // a choice made in this tab wins
+        var a = activeTokensPreset();
+        if (a && presetInfo(a.id)) { applyPreset(a.id, a.mode, { source: a.source }); scheduleRefresh(); }
+      });
+    }
     window.addEventListener('aegis:preset-change', function (e) {
       var d = e.detail || {};
       if (d.id && presetInfo(d.id)) { applyPreset(d.id, d.mode, { source: 'event' }); scheduleRefresh(); }

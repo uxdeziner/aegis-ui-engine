@@ -9,6 +9,7 @@ AegisUI is a design-system toolkit built from static HTML, CSS and ES2017+ JavaS
 | **Preset Vault** | [`presets/index.html`](presets/index.html) | 12 production themes with light and dark modes, contrast checked at build time. Preview, export, or **Open in Studio**. Details: [`presets/README.md`](presets/README.md). |
 | **Figma Bridge** | [`figma-plugin/index.html`](figma-plugin/index.html) | Help page and validator for **AegisUI Token Sync**, the Figma plugin that turns token JSON into Variables, styles and a style guide. Details: [`figma-plugin/README.md`](figma-plugin/README.md). |
 | **Showcase** | [`showcase/showcase.html`](showcase/showcase.html) | UX engineering case study with an interactive before/after, ROI model and architecture overview. |
+| **Simulator** | [`simulator/simulator.html`](simulator/simulator.html) | Shows a preset workspace through eight accessibility simulations (color-vision types, projector washout, 200% text, RTL, focus order) and exports a review report. It opens on the preset behind the active Studio tokens. A review aid, not a conformance test. Details: [`simulator/README.md`](simulator/README.md). |
 
 Every page carries the same module navigation bar at the top. It's plain HTML with relative links, the current module is marked with `aria-current="page"`, and it works without JavaScript.
 
@@ -63,7 +64,7 @@ Exact preset values remain in `presets/tokens/<id>.json`.
 
 **Old exports are preserved.** Studio still exports `variables.css` (`--<prefix>-*`, light/dark, reduced motion) and the W3C DTCG `tokens.json` unchanged. The canonical document is an *additional* export, `aegis-tokens.json`, also bundled in the zip as `tokens/aegis-tokens.json`.
 
-**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for Phase 2 modules (Playground, Simulator, CLI, Launch Kit). Links to those modules are added only once their pages exist.
+**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for Phase 2 modules (Playground, Simulator, CLI, Launch Kit). The Simulator is linked; links to the other modules are added once their pages exist.
 
 ### Active token baseline
 
@@ -71,7 +72,7 @@ Whenever Studio settings change, the Studio writes the canonical document and it
 
 | Key | Owner | Contents |
 | --- | --- | --- |
-| `aegis:active-tokens:v1` | Studio (written), Auditor and Figma Bridge (read) | `{ schema: "aegis-active-tokens@1", savedAt, origin, presetId, prefix, extraVars, doc }` |
+| `aegis:active-tokens:v1` | Studio (written); Auditor, Figma Bridge and Simulator (read) | `{ schema: "aegis-active-tokens@1", savedAt, origin, presetId, prefix, extraVars, doc }` |
 | `aegisui:v1`, `aegisui:prefs:v1` | Studio | Generator settings (plus the selected preset) and UI preferences. Unreadable state is discarded and defaults load. |
 | `aegis.auditor.code`, `.theme`, `.baseline` | Auditor | Editor content, theme, baseline mode (`active` or `none`) |
 | `aegis-theme` | Showcase | Theme |

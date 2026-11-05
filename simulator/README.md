@@ -54,8 +54,9 @@ The workspace preset is resolved in this order. The first valid preset id wins:
 1. URL query or hash: `?theme=<id>&mode=light|dark` (`preset=` also works). This is the same `#theme=…&mode=…` format the gallery writes.
 2. A preset chosen inside the simulator in this tab (`sessionStorage["aegis-simulator:preset"]`).
 3. A shared bridge, if one is present: `window.AegisTokenBridge.getActivePreset()` → `{ id, mode }`.
-4. Shared `localStorage` keys, in this order: `aegis:active-preset`, `aegisui:active-preset`, `aegis-active-preset`, `aegisui:preset`. The value can be a JSON `{ "id", "mode" }` or a bare id string.
-5. The default, `enterprise-saas`.
+4. The **canonical active tokens** written by the Studio, read through [`shared/aegis-contract.js`](../shared/aegis-contract.js) from `localStorage["aegis:active-tokens:v1"]` (see [`docs/INTEGRATION.md`](../docs/INTEGRATION.md)). The record's `presetId` and `doc.meta.defaultMode` are used. Empty, corrupt or blocked storage, and Studio systems not seeded from a preset, are skipped. Changes made in another tab are followed live unless a preset was picked in this tab.
+5. Legacy `localStorage` keys, as a read-only fallback, in this order: `aegis:active-preset`, `aegisui:active-preset`, `aegis-active-preset`, `aegisui:preset`. The value can be a JSON `{ "id", "mode" }` or a bare id string. No AegisUI module writes these today.
+6. The default, `enterprise-saas`.
 
 If no mode is given, the simulator uses `localStorage["aegis-theme"]` (the showcase's light/dark preference) when present, and otherwise the preset's default mode. Unknown ids are ignored.
 

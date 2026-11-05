@@ -147,14 +147,14 @@ Every page has this bar right after its skip link. Paths are relative to the pag
 </nav>
 ```
 
-**Hook for Phase 2 modules.** Links are added only when the target page exists on the same branch; the browser tests fail on any broken nav link. Each page has an `<!-- aegis-nav:future-modules … -->` comment at the insertion point. The planned order and paths, to be confirmed when those modules merge:
+**Hook for Phase 2 modules.** Links are added only when the target page exists on the same branch; the browser tests fail on any broken nav link. Each page has an `<!-- aegis-nav:future-modules … -->` comment at the insertion point. Order and status:
 
-| Order | Label | Expected page |
-| --- | --- | --- |
-| 6 | Playground | `playground/index.html` |
-| 7 | Simulator | `simulator/index.html` |
-| 8 | CLI | `cli/index.html` (docs page; the CLI itself is Node) |
-| 9 | Launch Kit | `launch-kit/index.html` |
+| Order | Label | Page | Status |
+| --- | --- | --- | --- |
+| 6 | Simulator | `simulator/simulator.html` | **Linked.** Reads the canonical active tokens |
+| 7 | Playground | `playground/index.html` (expected) | Hook only: no `playground/` on `main` yet |
+| 8 | CLI | `cli/index.html` (if a docs page ships) | Hook only: the CLI is Node and has no page |
+| 9 | Launch Kit | `launch-kit/index.html` (if a page ships) | Hook only: Markdown only |
 
 To add a module once its page has merged:
 1. Add its `<li>` at the hook in **every** page, including the new module's own page with `aria-current="page"` on its own link.

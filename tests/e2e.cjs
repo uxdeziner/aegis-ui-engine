@@ -34,6 +34,7 @@ const PAGES = [
   { path: 'presets/index.html', nav: 'Preset Vault', ready: '#g-stage .g-frame' },
   { path: 'figma-plugin/index.html', nav: 'Figma Bridge', ready: '#validate' },
   { path: 'showcase/showcase.html', nav: 'Showcase', ready: '#main' },
+  { path: 'simulator/simulator.html', nav: 'Simulator', ready: '#ws[data-aegis-theme]' },
 ];
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844, isMobile: true, hasTouch: true } };
 const SHOTS = process.env.SHOTS ? path.resolve(process.env.SHOTS) : null;
@@ -91,7 +92,7 @@ async function test(name, fn) {
           return { labels: links.map((a) => a.textContent.trim()), current: links.filter((a) => a.getAttribute('aria-current') === 'page').map((a) => a.textContent.trim()), hrefs: links.map((a) => a.href), rawHrefs: links.map((a) => a.getAttribute('href')), first: document.body.firstElementChild && document.body.firstElementChild.tagName };
         });
         assert.ok(nav, 'shared navigation missing');
-        assert.deepStrictEqual(nav.labels, ['Studio', 'Auditor', 'Preset Vault', 'Figma Bridge', 'Showcase']);
+        assert.deepStrictEqual(nav.labels, ['Studio', 'Auditor', 'Preset Vault', 'Figma Bridge', 'Showcase', 'Simulator']);
         assert.deepStrictEqual(nav.current, [p.nav], 'aria-current should mark exactly the current module');
         nav.rawHrefs.forEach((h) => assert.ok(!/^(\/|https?:)/.test(h), 'nav link is not relative: ' + h));
         for (const h of nav.hrefs) { const r = await page.request.get(h); assert.strictEqual(r.status(), 200, 'nav link broken: ' + h); }
@@ -125,6 +126,8 @@ async function test(name, fn) {
     await page.waitForURL(/presets\/index\.html/);
     await page.click('nav.aegis-nav >> text=Showcase');
     await page.waitForURL(/showcase\/showcase\.html$/);
+    await page.click('nav.aegis-nav >> text=Simulator');
+    await page.waitForURL(/simulator\/simulator\.html$/);
     await page.click('nav.aegis-nav >> text=Studio');
     await page.waitForURL(/aegis-ui-engine\/index\.html$/);
     noProblems(page);
@@ -339,6 +342,28 @@ async function test(name, fn) {
     assert.ok(Math.abs(gap) <= 1, 'drawer is offset from the top bar by ' + gap + 'px');
     assert.strictEqual(await page.getAttribute('#g-menu', 'aria-expanded'), 'true');
     noProblems(page);
+    await ctx.close();
+  });
+
+  await test('Simulator reads the canonical active tokens (aegis:active-tokens:v1) and follows changes from other tabs', async () => {
+    const ctx = await context();
+    const studio = await open(ctx, 'index.html');
+    await studio.waitForSelector('#preview-root .ae-app');
+    await studio.selectOption('#ds-preset', 'vault:fintech-terminal');
+    await studio.waitForFunction((k) => { try { return JSON.parse(localStorage.getItem(k)).presetId === 'fintech-terminal'; } catch (e) { return false; } }, K.BASELINE_KEY);
+    const sim = await open(ctx, 'simulator/simulator.html');
+    await sim.waitForSelector('#ws[data-aegis-theme]');
+    const p1 = await sim.evaluate(() => window.AegisSimulator.getPreset());
+    assert.deepStrictEqual([p1.id, p1.mode, p1.source], ['fintech-terminal', 'dark', 'active-tokens']);
+    assert.strictEqual(await sim.getAttribute('#ws', 'data-aegis-theme'), 'fintech-terminal');
+    await studio.selectOption('#ds-preset', 'vault:healthcare-clean');
+    await sim.waitForFunction(() => document.querySelector('#ws').getAttribute('data-aegis-theme') === 'healthcare-clean', null, { timeout: 4000 });
+    assert.strictEqual((await sim.evaluate(() => window.AegisSimulator.getPreset())).source, 'active-tokens');
+    // A Studio system not seeded from a preset, or a corrupt record, falls back safely.
+    await studio.evaluate((k) => localStorage.setItem(k, '{corrupt'), K.BASELINE_KEY);
+    await sim.reload(); await sim.waitForSelector('#ws[data-aegis-theme]');
+    assert.strictEqual((await sim.evaluate(() => window.AegisSimulator.getPreset())).source, 'default');
+    noProblems(studio); noProblems(sim);
     await ctx.close();
   });
 
