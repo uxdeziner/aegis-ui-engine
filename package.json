@@ -15,6 +15,9 @@
     "test:contract": "node tests/contract.test.cjs",
     "test:cli": "node --test cli/test/*.test.js",
     "test:e2e": "node tests/e2e.cjs",
+    "test:simulator": "node simulator/tests/run.cjs",
+    "test:playground": "node playground/tests/run.cjs",
+    "test:browser": "npm run test:e2e && npm run test:simulator && npm run test:playground",
     "build:cli-manifest": "node cli/tools/build-manifest.cjs",
     "serve": "node tests/serve.cjs"
   }
