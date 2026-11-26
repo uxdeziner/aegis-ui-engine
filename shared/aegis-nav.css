@@ -1,6 +1,6 @@
 /* AegisUI · shared module navigation
  * One static <nav class="aegis-nav"> bar on every page (Studio, Auditor,
- * Preset Vault, Figma Bridge, Showcase). The bar keeps its own look on
+ * Preset Vault, Figma Bridge, Showcase, Simulator, Playground, CLI, Launch Kit). The bar keeps its own look on
  * every page, whatever theme the page itself uses. Class names and custom
  * properties are prefixed so they never collide with module tokens.
  * The active page carries aria-current="page", shown by weight, a filled

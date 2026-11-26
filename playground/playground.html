@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../presets/aegis-components.css">
   <link rel="stylesheet" href="fallback-tokens.css">
   <link rel="stylesheet" href="playground.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
   <script>
     /* Pre-paint: apply a stored/URL preset before first render to avoid a theme flash.
        playground.js validates it against the registry and corrects it if needed. */
@@ -30,6 +31,22 @@
 </head>
 <body class="ae-root pg">
   <a class="pg-skip" href="#pg-main">Skip to workspace</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+      <li><a href="../simulator/simulator.html">Simulator</a></li>
+      <li><a href="playground.html" aria-current="page">Playground</a></li>
+      <li><a href="../cli/index.html">CLI</a></li>
+      <li><a href="../launch-kit/index.html">Launch Kit</a></li>
+      <!-- aegis-nav:future-modules — new modules add their <li> here once their pages exist. See docs/INTEGRATION.md#navigation. -->
+    </ul>
+  </nav>
 
   <header class="pg-top">
     <a class="pg-brand" href="../index.html" title="AegisUI home">

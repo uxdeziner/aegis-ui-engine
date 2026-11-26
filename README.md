@@ -1,6 +1,6 @@
 # AegisUI
 
-AegisUI is a design-system toolkit built from static HTML, CSS and ES2017+ JavaScript, with **no runtime dependencies and no build step needed to use it**. You generate a token system in the Studio, start from one of 12 enterprise presets, audit AI-generated UI against your tokens, and push the same tokens into Figma.
+AegisUI is a design-system toolkit built from static HTML, CSS and ES2017+ JavaScript, with **no runtime dependencies and no build step needed to use it**. You generate a token system in the Studio, start from one of 12 enterprise presets, audit AI-generated UI against your tokens, push the same tokens into Figma, grab token-driven components from the Playground, and scaffold a preset into any project with one CLI command.
 
 | Module | Open | What it does |
 | --- | --- | --- |
@@ -10,6 +10,9 @@ AegisUI is a design-system toolkit built from static HTML, CSS and ES2017+ JavaS
 | **Figma Bridge** | [`figma-plugin/index.html`](figma-plugin/index.html) | Help page and validator for **AegisUI Token Sync**, the Figma plugin that turns token JSON into Variables, styles and a style guide. Details: [`figma-plugin/README.md`](figma-plugin/README.md). |
 | **Showcase** | [`showcase/showcase.html`](showcase/showcase.html) | UX engineering case study with an interactive before/after, ROI model and architecture overview. |
 | **Simulator** | [`simulator/simulator.html`](simulator/simulator.html) | Shows a preset workspace through eight accessibility simulations (color-vision types, projector washout, 200% text, RTL, focus order) and exports a review report. It opens on the preset behind the active Studio tokens. A review aid, not a conformance test. Details: [`simulator/README.md`](simulator/README.md). |
+| **Playground** | [`playground/playground.html`](playground/playground.html) | Prompt-to-component sandbox: 39 copy-ready enterprise components styled only with AegisUI tokens. Live preview in any preset and mode, Copy HTML/CSS/JS, and an AI prompt that pins your assistant to the tokens. Details: [`playground/README.md`](playground/README.md). |
+| **CLI** | [`cli/index.html`](cli/index.html) | **aegis-init**: `node cli/aegis-init.js --preset=fintech --out=./app` writes `variables.css`, `tokens.json`, `CLAUDE.md` and `.cursorrules` from a real preset. Zero dependencies, no network, no overwrites without `--force`. Details: [`cli/README.md`](cli/README.md). |
+| **Launch Kit** | [`launch-kit/index.html`](launch-kit/index.html) | Launch material: LinkedIn drafts, an architecture article and a 60-second demo script, with a claims checklist. Details: [`launch-kit/LAUNCH-GUIDE.md`](launch-kit/LAUNCH-GUIDE.md). |
 
 Every page carries the same module navigation bar at the top. It's plain HTML with relative links, the current module is marked with `aria-current="page"`, and it works without JavaScript.
 
@@ -21,6 +24,14 @@ npm run serve                # http://127.0.0.1:4173/aegis-ui-engine/  (no depen
 ```
 
 You can also open the HTML files straight from disk. For **cross-module sync** (Studio → Auditor and Figma Bridge), serve the folder over HTTP. Browsers give `file://` pages inconsistent storage origins, and Firefox isolates them by default. All URLs are relative, so the site also works from a sub-path such as GitHub Pages' `/<repo>/` (the browser tests run under `/aegis-ui-engine/`).
+
+Scaffold a preset into your own project with the CLI (Node ≥ 18, no install):
+
+```bash
+node cli/aegis-init.js --list                         # 12 presets + aliases
+node cli/aegis-init.js --preset=gov --out=./my-app    # scaffold tokens + AI rule files
+node --test cli/test/*.test.js                        # CLI tests
+```
 
 The presets reference Google Fonts. Without network access, pages fall back to the listed system font stacks. Nothing else is fetched from the network.
 
@@ -36,6 +47,8 @@ presets/themes/*.mjs ──npm run build──► presets/tokens/<id>.json ─�
                                         ▲                     ┌──────────────── active tokens ◄───────┘
                                         │                     ▼                        ▼
                                   Figma plugin ◄── aegis-tokens.json ── Figma Bridge   Auditor (validation + preview)
+
+presets/tokens/<id>.json + presets/css/<id>.css ──► cli/aegis-init.js ──► variables.css · tokens.json · CLAUDE.md · .cursorrules
 ```
 
 ### Token contract
@@ -64,7 +77,7 @@ Exact preset values remain in `presets/tokens/<id>.json`.
 
 **Old exports are preserved.** Studio still exports `variables.css` (`--<prefix>-*`, light/dark, reduced motion) and the W3C DTCG `tokens.json` unchanged. The canonical document is an *additional* export, `aegis-tokens.json`, also bundled in the zip as `tokens/aegis-tokens.json`.
 
-**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for Phase 2 modules (Playground, Simulator, CLI, Launch Kit). The Simulator is linked; links to the other modules are added once their pages exist.
+**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for new modules. All Phase 2 modules (Simulator, Playground, CLI, Launch Kit) are linked.
 
 ### Active token baseline
 
@@ -129,8 +142,11 @@ To use **AegisUI Token Sync** in Figma, import `figma-plugin/manifest.json` in t
 ## Testing
 
 ```bash
-npm test           # strict preset build + Figma plugin end-to-end (mock API) + token contract tests
-npm run test:e2e   # browser integration tests (needs Playwright + Chromium installed locally)
+npm test                          # strict preset build + Figma plugin end-to-end (mock API) + token contract tests + CLI tests
+npm run test:cli                  # CLI tests only (node --test cli/test/*.test.js)
+npm run test:e2e                  # browser integration tests (needs Playwright + Chromium installed locally)
+node playground/tests/run.cjs     # Playground browser tests (Playwright)
+node simulator/tests/run.cjs      # Simulator browser tests (Playwright)
 ```
 
 - `npm test` needs only Node ≥ 18.
@@ -141,8 +157,9 @@ npm run test:e2e   # browser integration tests (needs Playwright + Chromium inst
     - a full plugin import of a Studio export
     - unchanged shape of the old exports
     - baseline storage edge cases: empty, corrupt, invalid, quota, unavailable
+  - **CLI tests** (`cli/test/`) cover generation for every preset, options, errors, the no-overwrite rule, path safety and the no-network rule.
 - `npm run test:e2e` (`tests/e2e.cjs`) serves the repo under `/aegis-ui-engine/` and covers:
-  - every page at desktop and mobile: console errors, missing or out-of-mount assets, sideways scroll, and the navigation (labels, one `aria-current`, relative links, 24px targets, keyboard order)
+  - every page (all nine modules) at desktop and mobile: console errors, missing or out-of-mount assets, sideways scroll, and the navigation (labels, one `aria-current`, relative links, 24px targets, keyboard order)
   - all 12 presets in the Studio, persistence across reloads, empty and corrupt storage, and cross-tab sync
   - Auditor baseline validation and preview injection
   - canonical export and Figma Bridge validation, the zip contents, and Preset Vault → Studio
@@ -174,7 +191,11 @@ auditor/                     Auditor
 presets/                     Preset Vault, themes, build, schema, tokens, CSS
 figma-plugin/                Token Sync plugin (manifest, code.js, ui.html) + Figma Bridge help page
 showcase/                    Case study
-shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation)
+simulator/                   Accessibility simulator
+playground/                  Prompt-to-component sandbox (39 token-driven components)
+cli/                         aegis-init CLI (aegis-init.js, tests) + docs page
+launch-kit/                  Launch guide (posts, article, demo script, claims checklist) + summary page
+shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation), aegis-doc-page.css (CLI / Launch Kit pages)
 docs/                        INTEGRATION.md: stable bridge API, storage key and navigation hook for new modules
 tests/                       contract tests, browser tests, sub-path static server
 ```

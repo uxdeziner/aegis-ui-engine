@@ -35,6 +35,9 @@ const PAGES = [
   { path: 'figma-plugin/index.html', nav: 'Figma Bridge', ready: '#validate' },
   { path: 'showcase/showcase.html', nav: 'Showcase', ready: '#main' },
   { path: 'simulator/simulator.html', nav: 'Simulator', ready: '#ws[data-aegis-theme]' },
+  { path: 'playground/playground.html', nav: 'Playground', ready: '#pg-list li' },
+  { path: 'cli/index.html', nav: 'CLI', ready: '#main' },
+  { path: 'launch-kit/index.html', nav: 'Launch Kit', ready: '#main' },
 ];
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844, isMobile: true, hasTouch: true } };
 const SHOTS = process.env.SHOTS ? path.resolve(process.env.SHOTS) : null;
@@ -92,7 +95,7 @@ async function test(name, fn) {
           return { labels: links.map((a) => a.textContent.trim()), current: links.filter((a) => a.getAttribute('aria-current') === 'page').map((a) => a.textContent.trim()), hrefs: links.map((a) => a.href), rawHrefs: links.map((a) => a.getAttribute('href')), first: document.body.firstElementChild && document.body.firstElementChild.tagName };
         });
         assert.ok(nav, 'shared navigation missing');
-        assert.deepStrictEqual(nav.labels, ['Studio', 'Auditor', 'Preset Vault', 'Figma Bridge', 'Showcase', 'Simulator']);
+        assert.deepStrictEqual(nav.labels, PAGES.map((x) => x.nav));
         assert.deepStrictEqual(nav.current, [p.nav], 'aria-current should mark exactly the current module');
         nav.rawHrefs.forEach((h) => assert.ok(!/^(\/|https?:)/.test(h), 'nav link is not relative: ' + h));
         for (const h of nav.hrefs) { const r = await page.request.get(h); assert.strictEqual(r.status(), 200, 'nav link broken: ' + h); }
@@ -128,6 +131,12 @@ async function test(name, fn) {
     await page.waitForURL(/showcase\/showcase\.html$/);
     await page.click('nav.aegis-nav >> text=Simulator');
     await page.waitForURL(/simulator\/simulator\.html$/);
+    await page.click('nav.aegis-nav >> text=Playground');
+    await page.waitForURL(/playground\/playground\.html/);
+    await page.click('nav.aegis-nav >> text=CLI');
+    await page.waitForURL(/cli\/index\.html$/);
+    await page.click('nav.aegis-nav >> text=Launch Kit');
+    await page.waitForURL(/launch-kit\/index\.html$/);
     await page.click('nav.aegis-nav >> text=Studio');
     await page.waitForURL(/aegis-ui-engine\/index\.html$/);
     noProblems(page);

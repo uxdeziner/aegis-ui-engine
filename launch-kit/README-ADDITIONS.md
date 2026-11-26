@@ -1,5 +1,7 @@
 # Proposed root README additions
 
+> **Status:** merged. The module rows, quick-start block, `test:cli` script and pipeline line below are now in the root `README.md` and `package.json`, and the CLI and Launch Kit are in the shared navigation.
+
 The root `README.md` and shared navigation are owned by another workstream, so this PR does not edit them. Below is suggested text for whoever owns the root README to merge in when convenient.
 
 ---

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-aegis-theme="enterprise-saas" data-aegis-mode="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisUI CLI · aegis-init</title>
+  <meta name="description" content="aegis-init scaffolds one of the 12 AegisUI presets into a project: variables.css, tokens.json, CLAUDE.md and .cursorrules. Zero dependencies, no network.">
+  <!-- Relative paths only: works from file://, a local server and GitHub Pages (/aegis-ui-engine/cli/). -->
+  <link rel="stylesheet" href="../presets/aegis-presets.css">
+  <link rel="stylesheet" href="../presets/aegis-components.css">
+  <link rel="stylesheet" href="../shared/aegis-doc-page.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
+</head>
+<body class="ae-root doc">
+  <a class="doc-skip" href="#main">Skip to content</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+      <li><a href="../simulator/simulator.html">Simulator</a></li>
+      <li><a href="../playground/playground.html">Playground</a></li>
+      <li><a href="index.html" aria-current="page">CLI</a></li>
+      <li><a href="../launch-kit/index.html">Launch Kit</a></li>
+      <!-- aegis-nav:future-modules — new modules add their <li> here once their pages exist. See docs/INTEGRATION.md#navigation. -->
+    </ul>
+  </nav>
+
+  <main class="doc-main" id="main">
+    <header class="doc-hero">
+      <p class="doc-eyebrow">Command-line tool</p>
+      <h1>aegis-init</h1>
+      <p class="doc-lede">One command scaffolds an AegisUI preset into your project. Your CSS and your AI coding assistant get the same design tokens.</p>
+      <div class="doc-actions">
+        <a class="ae-btn ae-btn--primary" href="README.md">Full CLI reference (Markdown)</a>
+        <a class="ae-btn" href="../presets/index.html">Browse the 12 presets</a>
+      </div>
+    </header>
+
+    <section class="doc-section" aria-labelledby="quick-title">
+      <h2 id="quick-title">Quick start</h2>
+      <p>You need Node 18 or later. There are no dependencies, no build step and no network calls: the CLI only reads this repository's <code>presets/</code> folder and writes into <code>--out</code>.</p>
+      <pre class="ae-code doc-pre" tabindex="0" aria-label="Quick start commands"><code>node cli/aegis-init.js --list                         # 12 presets + aliases
+node cli/aegis-init.js --preset=gov --out=./my-app    # scaffold tokens + AI rule files
+node --test cli/test/*.test.js                        # CLI tests</code></pre>
+      <p>Then load the tokens in your app:</p>
+      <pre class="ae-code doc-pre" tabindex="0" aria-label="HTML setup"><code>&lt;html data-aegis-theme="gov-accessible" data-aegis-mode="light"&gt;
+  &lt;head&gt;&lt;link rel="stylesheet" href="variables.css"&gt;&lt;/head&gt;</code></pre>
+    </section>
+
+    <section class="doc-section" aria-labelledby="files-title">
+      <h2 id="files-title">What it writes</h2>
+      <div class="doc-grid">
+        <article class="ae-card"><h3><code>variables.css</code></h3><p>Every token as a <code>--aegis-*</code> custom property, with light, dark and auto blocks.</p></article>
+        <article class="ae-card"><h3><code>tokens.json</code></h3><p>A byte-identical copy of the preset's token document. The Figma plugin imports it as is.</p></article>
+        <article class="ae-card"><h3><code>CLAUDE.md</code></h3><p>Rules for Claude Code: the semantic color table, text styles, scales and component recipes.</p></article>
+        <article class="ae-card"><h3><code>.cursorrules</code></h3><p>The same rules in condensed form for Cursor.</p></article>
+      </div>
+      <pre class="ae-code doc-pre doc-note" tabindex="0" aria-label="Pipeline"><code>presets/tokens/&lt;id&gt;.json + presets/css/&lt;id&gt;.css ──► cli/aegis-init.js ──► variables.css · tokens.json · CLAUDE.md · .cursorrules</code></pre>
+    </section>
+
+    <section class="doc-section" aria-labelledby="opts-title">
+      <h2 id="opts-title">Options</h2>
+      <div class="doc-table-wrap ae-table-wrap">
+        <table class="ae-table">
+          <thead><tr><th scope="col">Option</th><th scope="col">Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>--preset=&lt;id|alias&gt;</code></td><td>Required. A preset id or alias, such as <code>fintech</code> or <code>gov</code>.</td></tr>
+            <tr><td><code>--out=&lt;dir&gt;</code></td><td>Required. Output folder inside the current working directory. Created if missing.</td></tr>
+            <tr><td><code>--mode=light|dark|auto</code></td><td>Mode used in the generated rule files. <code>variables.css</code> always has every mode.</td></tr>
+            <tr><td><code>--force</code>, <code>-f</code></td><td>Replace existing output files.</td></tr>
+            <tr><td><code>--dry-run</code></td><td>Validate and print what would be written, without writing.</td></tr>
+            <tr><td><code>--no-fonts</code></td><td>Drop the Google Fonts <code>@import</code>, for self-hosted fonts or strict CSPs.</td></tr>
+            <tr><td><code>--json</code></td><td>Machine-readable output.</td></tr>
+            <tr><td><code>--list</code>, <code>-l</code></td><td>List presets with their aliases.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="doc-section" aria-labelledby="safety-title">
+      <h2 id="safety-title">Safety</h2>
+      <ul>
+        <li><strong>No overwrites by default.</strong> If any target file exists, nothing is written and the CLI exits with code 2. Pass <code>--force</code> to replace them.</li>
+        <li><strong>Atomic writes.</strong> Each file is written to a temp file and renamed into place, then read back and validated.</li>
+        <li><strong>Path guards.</strong> <code>--out</code> is refused if it contains <code>..</code>, leaves the working directory or goes through a symlink.</li>
+        <li><strong>Validation first.</strong> The preset is checked against the token schema before anything is written.</li>
+      </ul>
+      <p class="ae-alert doc-note" role="note">The generated <code>CLAUDE.md</code> reports the preset's automated contrast checks on token pairs. That is not an accessibility audit or certification.</p>
+    </section>
+
+    <footer class="doc-footer">
+      <p>Source: <code>cli/aegis-init.js</code>. Tests: <code>npm run test:cli</code>. See the <a class="ae-link" href="README.md">full reference</a> for exit codes, every alias and the test coverage.</p>
+    </footer>
+  </main>
+</body>
+</html>

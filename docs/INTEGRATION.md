@@ -142,26 +142,32 @@ Every page has this bar right after its skip link. Paths are relative to the pag
     <li><a href="../presets/index.html">Preset Vault</a></li>
     <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
     <li><a href="../showcase/showcase.html">Showcase</a></li>
+    <li><a href="../simulator/simulator.html">Simulator</a></li>
+    <li><a href="../playground/playground.html">Playground</a></li>
+    <li><a href="../cli/index.html">CLI</a></li>
+    <li><a href="../launch-kit/index.html">Launch Kit</a></li>
     <!-- aegis-nav:future-modules — … -->
   </ul>
 </nav>
 ```
 
-**Hook for Phase 2 modules.** Links are added only when the target page exists on the same branch; the browser tests fail on any broken nav link. Each page has an `<!-- aegis-nav:future-modules … -->` comment at the insertion point. Order and status:
+**Hook for new modules.** Links are added only when the target page exists on the same branch; the browser tests fail on any broken nav link. Each page has an `<!-- aegis-nav:future-modules … -->` comment at the insertion point. All Phase 2 modules are now linked:
 
 | Order | Label | Page | Status |
 | --- | --- | --- | --- |
 | 6 | Simulator | `simulator/simulator.html` | **Linked.** Reads the canonical active tokens |
-| 7 | Playground | `playground/index.html` (expected) | Hook only: no `playground/` on `main` yet |
-| 8 | CLI | `cli/index.html` (if a docs page ships) | Hook only: the CLI is Node and has no page |
-| 9 | Launch Kit | `launch-kit/index.html` (if a page ships) | Hook only: Markdown only |
+| 7 | Playground | `playground/playground.html` | **Linked.** Reads the shared active preset key |
+| 8 | CLI | `cli/index.html` | **Linked.** A docs page for the Node CLI (`cli/aegis-init.js`), linking to `cli/README.md` |
+| 9 | Launch Kit | `launch-kit/index.html` | **Linked.** A summary page linking to `launch-kit/LAUNCH-GUIDE.md` |
+
+Modules that ship as Node or Markdown get a small landing page styled with `shared/aegis-doc-page.css` (Enterprise SaaS preset tokens, light/dark/auto).
 
 To add a module once its page has merged:
 1. Add its `<li>` at the hook in **every** page, including the new module's own page with `aria-current="page"` on its own link.
-2. Add the page to `PAGES` and its label to the expected list in `tests/e2e.cjs`.
+2. Add the page to `PAGES` in `tests/e2e.cjs`, in nav order. The expected nav labels come from that list.
 3. Run `npm test` and `npm run test:e2e`.
 
-The bar stays usable at 390px (it wraps) and keeps 24px targets. Check that it still does with nine links.
+The bar stays usable at 390px (it wraps onto three rows with nine links) and keeps 24px targets. Check that it still does if you add more.
 
 ## Accessibility claims
 

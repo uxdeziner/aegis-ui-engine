@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-aegis-theme="enterprise-saas" data-aegis-mode="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AegisUI Launch Kit</title>
+  <meta name="description" content="Launch material for AegisUI: LinkedIn post drafts, an architecture article and a 60-second demo script, with a claims checklist.">
+  <!-- Relative paths only: works from file://, a local server and GitHub Pages (/aegis-ui-engine/launch-kit/). -->
+  <link rel="stylesheet" href="../presets/aegis-presets.css">
+  <link rel="stylesheet" href="../presets/aegis-components.css">
+  <link rel="stylesheet" href="../shared/aegis-doc-page.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
+</head>
+<body class="ae-root doc">
+  <a class="doc-skip" href="#main">Skip to content</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+      <li><a href="../simulator/simulator.html">Simulator</a></li>
+      <li><a href="../playground/playground.html">Playground</a></li>
+      <li><a href="../cli/index.html">CLI</a></li>
+      <li><a href="index.html" aria-current="page">Launch Kit</a></li>
+      <!-- aegis-nav:future-modules — new modules add their <li> here once their pages exist. See docs/INTEGRATION.md#navigation. -->
+    </ul>
+  </nav>
+
+  <main class="doc-main" id="main">
+    <header class="doc-hero">
+      <p class="doc-eyebrow">Launch material</p>
+      <h1>Launch Kit</h1>
+      <p class="doc-lede">Drafts for announcing AegisUI: five LinkedIn posts, an architecture article and a 60-second demo script. Every claim is grounded in what the repository does today.</p>
+      <div class="doc-actions">
+        <a class="ae-btn ae-btn--primary" href="LAUNCH-GUIDE.md">Open the launch guide (Markdown)</a>
+        <a class="ae-btn" href="../cli/index.html">Try the CLI</a>
+      </div>
+    </header>
+
+    <section class="doc-section" aria-labelledby="inside-title">
+      <h2 id="inside-title">What's inside</h2>
+      <div class="doc-grid">
+        <article class="ae-card"><h3>Source of truth</h3><p>A table of what each module really does, which every post and script draws from.</p></article>
+        <article class="ae-card"><h3>Five LinkedIn posts</h3><p>The problem, contrast as a build step, the 12 presets, the CLI, and the Figma plugin.</p></article>
+        <article class="ae-card"><h3>Architecture article</h3><p>"One token file, three consumers": the token document, preset generation, and the app, AI and Figma consumers.</p></article>
+        <article class="ae-card"><h3>60-second demo script</h3><p>A timed shot list with voice-over, from the CLI to the Preset Vault, Figma and the Auditor.</p></article>
+      </div>
+    </section>
+
+    <section class="doc-section" aria-labelledby="claims-title">
+      <h2 id="claims-title">Before anything goes public</h2>
+      <p>Two distinctions to keep straight in every piece of content:</p>
+      <ol>
+        <li><strong>Automated contrast checks are not accessibility certification.</strong> Say "contrast-checked against WCAG AA/AAA". Never say "WCAG compliant", "accessible by default" or "certified".</li>
+        <li><strong>Figma mock tests are not real Figma validation.</strong> Say "tested against a mock of the Figma API" until the plugin has been run in the Figma desktop app.</li>
+      </ol>
+      <h3>Claims checklist</h3>
+      <ul>
+        <li>No benchmark, speed-up, cost-saving or ROI numbers unless they come from a measured pilot, with the method stated.</li>
+        <li>Counts match the repo: 12 presets, 16 text styles, 13 component recipes, 6 Figma variable collections, 4 CLI output files, about 39 contrast pairs per mode.</li>
+        <li>Fonts load from Google Fonts. Mention <code>--no-fonts</code> if someone asks about CSP or self-hosting.</li>
+        <li>Screenshots come from the current build, and fictional product names in previews are presented as sample data.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      <p>The full drafts, the demo shot list and the complete checklist are in <a class="ae-link" href="LAUNCH-GUIDE.md">launch-kit/LAUNCH-GUIDE.md</a>.</p>
+    </footer>
+  </main>
+</body>
+</html>

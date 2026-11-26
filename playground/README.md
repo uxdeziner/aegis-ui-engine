@@ -68,7 +68,7 @@ The playground **never writes** the shared key and edits no shared or root files
 | `window.AegisPlayground` | API | `templates()`, `select(id)`, `setPreset(id, mode)`, `getState()`, `match(text)`, `buildPrompt(id, request)`, `tokensOf(id)`, `source(id)` → `{ html, css, js }`, `version` |
 | `#<template-id>` | URL | Deep-links to a template (for example `playground.html#kanban`). It combines with `?preset=`. |
 
-**Suggested nav entry** for whoever owns shared navigation (relative to the repo root): `playground/playground.html`, label "Playground". The page links back to `../index.html` from its brand mark and adds no other shared chrome.
+**Shared navigation:** the page carries the shared `aegis-nav` bar (label "Playground", `playground/playground.html`) right after its skip link, and its brand mark still links back to `../index.html`.
 
 ## Adding a template
 

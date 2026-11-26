@@ -1,0 +1,40 @@
+/* AegisUI · simple documentation pages (CLI, Launch Kit)
+ * For modules that ship as Node or Markdown and need a readable landing page in
+ * the shared navigation. Loads after ../presets/aegis-presets.css and
+ * ../presets/aegis-components.css and uses only --aegis-* tokens, so the page
+ * follows the Enterprise SaaS preset in light, dark and auto mode.
+ */
+.doc { margin: 0; min-height: 100vh; }
+.doc-skip { position: absolute; left: var(--aegis-space-12); top: calc(var(--aegis-space-64) * -1); z-index: 100; padding: var(--aegis-space-8) var(--aegis-space-16); border-radius: var(--aegis-radius-md); background: var(--aegis-brand-default); color: var(--aegis-fg-on-brand); font: var(--aegis-text-label-md); }
+.doc-skip:focus { top: var(--aegis-space-12); }
+
+.doc-main { box-sizing: border-box; max-width: 60rem; margin: 0 auto; padding: var(--aegis-space-48) var(--aegis-space-24) var(--aegis-space-80); }
+.doc-hero { margin-bottom: var(--aegis-space-40); }
+.doc-eyebrow { margin: 0 0 var(--aegis-space-8); color: var(--aegis-fg-muted); font: var(--aegis-text-label-md); text-transform: uppercase; letter-spacing: 0.06em; }
+.doc-hero h1 { margin: 0 0 var(--aegis-space-12); font: var(--aegis-text-display-md); }
+.doc-lede { max-width: 44rem; margin: 0 0 var(--aegis-space-20); color: var(--aegis-fg-muted); font: var(--aegis-text-body-lg); }
+.doc-actions { display: flex; flex-wrap: wrap; gap: var(--aegis-space-8); }
+.doc-actions .ae-btn { text-decoration: none; }
+
+.doc-section { margin-top: var(--aegis-space-48); }
+.doc-section h2 { margin: 0 0 var(--aegis-space-12); font: var(--aegis-text-heading-lg); }
+.doc-section h3 { margin: var(--aegis-space-24) 0 var(--aegis-space-8); font: var(--aegis-text-heading-sm); }
+.doc-section p, .doc-section li { max-width: 46rem; }
+.doc-section p { margin: 0 0 var(--aegis-space-12); }
+.doc-section ul, .doc-section ol { margin: 0 0 var(--aegis-space-12); padding-left: var(--aegis-space-24); }
+.doc-section li + li { margin-top: var(--aegis-space-4); }
+.doc-section :not(pre) > code { padding: 0 var(--aegis-space-4); border-radius: var(--aegis-radius-sm); background: var(--aegis-bg-surface-sunken); font: var(--aegis-text-code); font-size: 0.92em; }
+
+.doc-pre { margin: 0 0 var(--aegis-space-16); overflow-x: auto; white-space: pre; }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--aegis-space-16); }
+.doc-grid .ae-card { padding: var(--aegis-space-20); }
+.doc-grid h3 { margin-top: 0; }
+.doc-grid p { margin-bottom: 0; color: var(--aegis-fg-muted); }
+.doc-table-wrap { overflow-x: auto; }
+.doc-note { margin-top: var(--aegis-space-16); }
+.doc-footer { margin-top: var(--aegis-space-64); padding-top: var(--aegis-space-24); border-top: var(--aegis-border-width-thin) solid var(--aegis-border-default); color: var(--aegis-fg-muted); font: var(--aegis-text-body-sm); }
+
+@media (max-width: 640px) {
+  .doc-main { padding: var(--aegis-space-32) var(--aegis-space-16) var(--aegis-space-64); }
+  .doc-hero h1 { font: var(--aegis-text-heading-xl); }
+}
