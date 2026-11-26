@@ -114,8 +114,11 @@ const ok = (name, cond, extra) => out.push((cond ? 'PASS ' : 'FAIL ') + name + (
   f = await sel('a11y-drawer');
   await f.locator('[data-ad-open]').click();
   ok('a11y drawer opens modal', await f.locator('[data-ad-dialog][open]').count() === 1);
-  await f.locator('#ad-size').fill('140');
+  // Tick the switch before enlarging the text: at 140% the content grows, the preview iframe
+  // resizes to fit (ResizeObserver) and the full-height drawer stretches with it, which can
+  // move the switch below the page viewport while Playwright is clicking it.
   await f.locator('input[name="dyslexia"]').check();
+  await f.locator('#ad-size').fill('140');
   const scale = await f.locator('[data-ad-content]').evaluate(e => getComputedStyle(e).getPropertyValue('--ad-scale').trim());
   ok('a11y drawer applies prefs', scale === '1.4' && await f.locator('[data-ad-content].is-dyslexia').count() === 1, scale);
   await p.keyboard.press('Escape');

@@ -39,6 +39,13 @@ function serve() {
 
 let passed = 0, failed = 0;
 const results = [];
+// Observations re-render on the next animation frame (rafThrottle in simulator.js),
+// so wait for the expected text instead of reading #sim-obs straight after a change.
+async function obsMatches(page, pattern) {
+  const src = pattern.source, flags = pattern.flags;
+  return page.waitForFunction(([s, f]) => new RegExp(s, f).test(document.querySelector('#sim-obs').textContent || ''), [src, flags], { timeout: 5000 }).then(() => true, () => false);
+}
+
 function check(name, cond, extra) {
   if (cond) { passed++; results.push('  ✓ ' + name); }
   else { failed++; results.push('  ✗ ' + name + (extra !== undefined ? '  → ' + JSON.stringify(extra) : '')); }
@@ -100,7 +107,7 @@ function check(name, cond, extra) {
     await page.locator('#sim-washout-level').fill('100');
     const w2 = await page.evaluate(() => document.querySelector('#sim-filter feFuncR').getAttribute('intercept'));
     check('washout uses feComponentTransfer and follows intensity', w1 && w2 && parseFloat(w2) > parseFloat(w1), { w1, w2 });
-    check('washout observations mention UI boundaries', (await page.textContent('#sim-obs')).includes('1.4.11'));
+    check('washout observations mention UI boundaries', await obsMatches(page, /1\.4\.11/), await page.textContent('#sim-obs'));
     await page.uncheck('#sim-washout');
 
     /* ---------------- Text scaling ---------------- */
@@ -116,7 +123,7 @@ function check(name, cond, extra) {
     check('200% doubles body text', Math.abs(body200 - 2 * body100) < 0.6, { body100, body200 });
     check('layout tokens (nav width) unchanged', Math.abs(navW200 - navW100) < 1, { navW100, navW200 });
     check('chrome text is not scaled', await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.sim-brand h1')).fontSize) < 24));
-    check('text observations rendered', /clip|overflow|box|Controls/i.test(await page.textContent('#sim-obs')));
+    check('text observations rendered', await obsMatches(page, /clip|overflow|box|Controls/i));
     await page.selectOption('#sim-text-scale', '100');
     check('back to 100% restores sizes', Math.abs((await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.ae-stat__value')).fontSize))) - fs100) < 0.1);
 
@@ -171,7 +178,7 @@ function check(name, cond, extra) {
     await page.keyboard.press('Tab');
     const t2 = await page.evaluate(() => document.activeElement.textContent.trim());
     check('positive tabindex ordered first (matches browser)', pos.first === 'New order' && pos.second === 'Export CSV' && t1 === 'New order' && t2 === 'Export CSV', { pos, t1, t2 });
-    check('positive tabindex flagged in observations', (await page.textContent('#sim-obs')).includes('positive tabindex'));
+    check('positive tabindex flagged in observations', await obsMatches(page, /positive tabindex/));
     await page.evaluate(() => document.querySelectorAll('#ws .ws-pagehead .ae-btn').forEach((b) => b.removeAttribute('tabindex')));
     // Step buttons move real focus.
     await page.click('#sim-step-next');

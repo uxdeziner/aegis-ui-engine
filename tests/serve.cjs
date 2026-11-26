@@ -5,13 +5,15 @@
  * Anything outside the mount returns 404, so an absolute "/…" URL in the app
  * shows up as a missing asset in tests.
  *   node tests/serve.cjs [port] [mount]
+ * Set AEGIS_SITE_ROOT=_site to serve the packaged site (tools/package-site.cjs)
+ * instead of the repository, which checks exactly what gets deployed.
  */
 'use strict';
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = process.env.AEGIS_SITE_ROOT ? path.resolve(process.env.AEGIS_SITE_ROOT) : path.resolve(__dirname, '..');
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8', '.cjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',

@@ -152,7 +152,7 @@ npm run test:playground  # Playground: 39 templates, interactions, preset inheri
 npm run test:browser     # all three browser suites
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs `npm test` on Node 18, 20 and 22, and the three browser suites on Node 22 with Chromium, on every pull request and every push to `main`.
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm test` on Node 18, 20 and 22, and the three browser suites on Node 22 with Chromium, on every pull request and every push to `main`. `.github/workflows/pages.yml` deploys the site (see *Deploying*).
 
 - `npm test` needs only Node ≥ 18.
   - **Contract tests** (`tests/contract.test.cjs`) cover:
@@ -170,6 +170,20 @@ GitHub Actions (`.github/workflows/ci.yml`) runs `npm test` on Node 18, 20 and 2
   - Simulator, Playground and CLI page inheriting the active Studio tokens, and the CLI page's output matching a real dry run
   - canonical export and Figma Bridge validation, the zip contents, and Preset Vault → Studio
   - Playwright is development tooling only; the app never loads it. Set `SHOTS=dir` to save screenshots.
+
+## Deploying
+
+AegisUI is a static site. It has no server, database, sign-in or secrets, and every page uses relative URLs, so any static host works.
+
+It deploys to **GitHub Pages** at `https://uxdeziner.github.io/aegis-ui-engine/` through `.github/workflows/pages.yml`. After every push to `main`, it runs `npm test`, packages the site and publishes it.
+
+- **One-time setup:** Settings → Pages → Build and deployment → Source: **GitHub Actions**. Until then the deploy job fails and nothing is published.
+- **What ships:** `node tools/package-site.cjs _site` copies the public pages and assets. It leaves out tests, build scripts, `docs/` and `launch-kit/`, adds `.nojekyll`, and fails on any broken local link or social-preview image.
+- **Checked before release:** CI runs the browser suite against the packaged `_site` (`AEGIS_SITE_ROOT=_site npm run test:e2e`), so the tests cover exactly what gets deployed.
+- **Social previews:** every page has Open Graph tags with absolute URLs under the Pages address (`shared/og-image.png`, and `showcase/og-cover.png` for the case study). If you move to a custom domain, update those URLs and `SITE_URL` in `tools/package-site.cjs`.
+- **Other hosts** (Netlify, Cloudflare Pages, Vercel): use `node tools/package-site.cjs _site` as the build command and `_site` as the output folder.
+
+The **Figma plugin** and the **CLI** are released separately. Publish the plugin from the Figma desktop app after a real test run (see *Known limitations*). The CLI runs from this repository with Node 18+ and isn't on npm.
 
 ## Accessibility statement
 
@@ -201,7 +215,8 @@ simulator/                   Accessibility Simulator
 playground/                  Prompt-to-Component Sandbox (39 templates)
 cli/                         aegis-init CLI, its command-builder page and manifest
 launch-kit/                  Launch material (Markdown only)
-shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation)
+shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation), og-image.png (social preview)
 docs/                        INTEGRATION.md: stable bridge API, storage key and navigation hook for new modules
 tests/                       contract tests, browser tests, sub-path static server
+tools/                       package-site.cjs: packages and link-checks the site for hosting
 ```

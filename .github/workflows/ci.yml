@@ -50,6 +50,11 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser integration tests
         run: npm run test:e2e
+      - name: Browser tests against the packaged site (what Pages deploys)
+        if: success() || failure()
+        run: |
+          node tools/package-site.cjs _site
+          AEGIS_SITE_ROOT=_site npm run test:e2e
       - name: Simulator tests
         if: success() || failure()
         run: npm run test:simulator
