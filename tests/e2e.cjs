@@ -40,7 +40,10 @@ const PAGES = [
   { path: 'figma-plugin/index.html', nav: 'Figma Bridge', ready: '#validate' },
   { path: 'showcase/showcase.html', nav: 'Showcase', ready: '#main' },
   { path: 'simulator/simulator.html', nav: 'Simulator', ready: '#ws[data-aegis-theme]' },
+  { path: 'playground/playground.html', nav: 'Playground', ready: '#pg-list li' },
+  { path: 'cli/index.html', nav: 'CLI', ready: '#cl-files tr' },
 ];
+const NAV_LABELS = PAGES.map((p) => p.nav);
 const VIEWPORTS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844, isMobile: true, hasTouch: true } };
 const SHOTS = process.env.SHOTS ? path.resolve(process.env.SHOTS) : null;
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -97,7 +100,7 @@ async function test(name, fn) {
           return { labels: links.map((a) => a.textContent.trim()), current: links.filter((a) => a.getAttribute('aria-current') === 'page').map((a) => a.textContent.trim()), hrefs: links.map((a) => a.href), rawHrefs: links.map((a) => a.getAttribute('href')), first: document.body.firstElementChild && document.body.firstElementChild.tagName };
         });
         assert.ok(nav, 'shared navigation missing');
-        assert.deepStrictEqual(nav.labels, ['Studio', 'Auditor', 'Preset Vault', 'Figma Bridge', 'Showcase', 'Simulator']);
+        assert.deepStrictEqual(nav.labels, NAV_LABELS);
         assert.deepStrictEqual(nav.current, [p.nav], 'aria-current should mark exactly the current module');
         nav.rawHrefs.forEach((h) => assert.ok(!/^(\/|https?:)/.test(h), 'nav link is not relative: ' + h));
         for (const h of nav.hrefs) { const r = await page.request.get(h); assert.strictEqual(r.status(), 200, 'nav link broken: ' + h); }
@@ -133,6 +136,10 @@ async function test(name, fn) {
     await page.waitForURL(/showcase\/showcase\.html$/);
     await page.click('nav.aegis-nav >> text=Simulator');
     await page.waitForURL(/simulator\/simulator\.html$/);
+    await page.click('nav.aegis-nav >> text=Playground');
+    await page.waitForURL(/playground\/playground\.html/);
+    await page.click('nav.aegis-nav >> text=CLI');
+    await page.waitForURL(/cli\/index\.html/);
     await page.click('nav.aegis-nav >> text=Studio');
     await page.waitForURL(/aegis-ui-engine\/index\.html$/);
     noProblems(page);
@@ -369,6 +376,91 @@ async function test(name, fn) {
     await sim.reload(); await sim.waitForSelector('#ws[data-aegis-theme]');
     assert.strictEqual((await sim.evaluate(() => window.AegisSimulator.getPreset())).source, 'default');
     noProblems(studio); noProblems(sim);
+    await ctx.close();
+  });
+
+  await test('Playground reads the canonical active tokens, follows other tabs, and a newer pick in the Playground wins', async () => {
+    const ctx = await context();
+    const studio = await open(ctx, 'index.html');
+    await studio.waitForSelector('#preview-root .ae-app');
+    await studio.selectOption('#ds-preset', 'vault:fintech-terminal');
+    await studio.waitForFunction((k) => { try { return JSON.parse(localStorage.getItem(k)).presetId === 'fintech-terminal'; } catch (e) { return false; } }, K.BASELINE_KEY);
+    const pg = await open(ctx, 'playground/playground.html');
+    await pg.waitForSelector('#pg-list li');
+    let st = await pg.evaluate(() => window.AegisPlayground.getState());
+    assert.deepStrictEqual([st.preset, st.mode], ['fintech-terminal', 'dark']);
+    assert.match(await pg.textContent('#pg-preset-note'), /inherited from active Studio tokens/);
+    assert.strictEqual(await pg.getAttribute('html', 'data-aegis-theme'), 'fintech-terminal');
+    // Studio changes in another tab are followed live.
+    await studio.selectOption('#ds-preset', 'vault:healthcare-clean');
+    await pg.waitForFunction(() => window.AegisPlayground.getState().preset === 'healthcare-clean', null, { timeout: 4000 });
+    // A pick made in the Playground afterwards survives a reload (newest choice wins) and drops the "inherited" note.
+    await pg.selectOption('#pg-preset', 'legal-slate');
+    assert.doesNotMatch(await pg.textContent('#pg-preset-note'), /inherited/);
+    await pg.reload(); await pg.waitForSelector('#pg-list li');
+    assert.strictEqual((await pg.evaluate(() => window.AegisPlayground.getState())).preset, 'legal-slate');
+    // A later Studio choice wins again on the next load.
+    await studio.selectOption('#ds-preset', 'vault:gov-accessible');
+    await pg.waitForFunction(() => window.AegisPlayground.getState().preset === 'gov-accessible', null, { timeout: 4000 });
+    await pg.reload(); await pg.waitForSelector('#pg-list li');
+    assert.strictEqual((await pg.evaluate(() => window.AegisPlayground.getState())).preset, 'gov-accessible');
+    // The Playground never writes the canonical record, and a corrupt record falls back safely.
+    assert.strictEqual(await pg.evaluate((k) => JSON.parse(localStorage.getItem(k)).origin, K.BASELINE_KEY), 'studio');
+    await pg.evaluate(() => localStorage.removeItem('aegisui:playground:v1'));
+    await studio.evaluate((k) => localStorage.setItem(k, '{corrupt'), K.BASELINE_KEY);
+    await pg.reload(); await pg.waitForSelector('#pg-list li');
+    assert.strictEqual((await pg.evaluate(() => window.AegisPlayground.getState())).preset, 'enterprise-saas');
+    noProblems(studio); noProblems(pg);
+    await ctx.close();
+  });
+
+  await test('CLI page: builds the command, shows the CLI\'s exact dry-run output, validates the folder like the CLI', async () => {
+    const { execFileSync } = require('child_process');
+    const os = require('os');
+    const ctx = await context();
+    const page = await open(ctx, 'cli/index.html?preset=fintech');
+    await page.waitForSelector('#cl-files tr');
+    assert.strictEqual(await page.getAttribute('html', 'data-aegis-theme'), 'fintech-terminal');
+    assert.strictEqual(await page.textContent('#cl-cmd'), 'node cli/aegis-init.js --preset=fintech-terminal --out=./my-app');
+    await page.fill('#cl-out', './apps/trading');
+    await page.check('#cl-mode input[value="light"]');
+    await page.check('#cl-nofonts');
+    await page.check('#cl-dry');
+    const cmd = await page.textContent('#cl-cmd');
+    assert.strictEqual(cmd, 'node cli/aegis-init.js --preset=fintech-terminal --out=./apps/trading --mode=light --no-fonts --dry-run');
+    // Run the same command for real (dry run) and compare with what the page shows.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aegis-cli-page-'));
+    const real = execFileSync(process.execPath, [path.join(__dirname, '..', 'cli', 'aegis-init.js')].concat(cmd.split(' ').slice(2)), { cwd: tmp, encoding: 'utf8' }).trimEnd();
+    fs.rmSync(tmp, { recursive: true, force: true });
+    const shown = (await page.textContent('#cl-term')).split('\n').slice(1).join('\n');
+    assert.strictEqual(shown, real);
+    assert.strictEqual(await page.textContent('#cl-exit'), 'Exit 0');
+    // Invalid folders get the CLI's own message and exit code.
+    for (const [bad, re] of [['../outside', /must not contain "\.\." segments/], ['/etc/app', /must be inside the current directory/], ['', /--out is required/]]) {
+      await page.fill('#cl-out', bad);
+      assert.match(await page.textContent('#cl-term'), re);
+      assert.strictEqual(await page.textContent('#cl-exit'), 'Exit 1');
+      assert.strictEqual(await page.getAttribute('#cl-out', 'aria-invalid'), 'true');
+    }
+    // Aliases resolve, unknown ids don't, and the page writes no storage.
+    assert.deepStrictEqual(await page.evaluate(() => [window.AegisCliPage.resolveId('gov'), window.AegisCliPage.resolveId('nope')]), ['gov-accessible', null]);
+    assert.strictEqual(await page.evaluate(() => localStorage.length), 0);
+    noProblems(page);
+    await ctx.close();
+  });
+
+  await test('CLI page starts on the preset behind the active Studio tokens', async () => {
+    const ctx = await context();
+    const studio = await open(ctx, 'index.html');
+    await studio.waitForSelector('#preview-root .ae-app');
+    await studio.selectOption('#ds-preset', 'vault:developer-console');
+    await studio.waitForFunction((k) => { try { return JSON.parse(localStorage.getItem(k)).presetId === 'developer-console'; } catch (e) { return false; } }, K.BASELINE_KEY);
+    const page = await open(ctx, 'cli/index.html');
+    await page.waitForSelector('#cl-files tr');
+    const st = await page.evaluate(() => window.AegisCliPage.getState());
+    assert.deepStrictEqual([st.preset, st.source], ['developer-console', 'active-tokens']);
+    assert.match(await page.textContent('#cl-preset-help'), /from your active Studio tokens/);
+    noProblems(studio); noProblems(page);
     await ctx.close();
   });
 

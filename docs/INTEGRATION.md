@@ -152,8 +152,8 @@ Every page has this bar right after its skip link. Paths are relative to the pag
 | Order | Label | Page | Status |
 | --- | --- | --- | --- |
 | 6 | Simulator | `simulator/simulator.html` | **Linked.** Reads the canonical active tokens |
-| 7 | Playground | `playground/index.html` (expected) | Hook only: no `playground/` on `main` yet |
-| 8 | CLI | `cli/index.html` (if a docs page ships) | Hook only: the CLI is Node and has no page |
+| 7 | Playground | `playground/playground.html` | **Linked.** Reads the canonical active tokens; a newer pick in the Playground wins |
+| 8 | CLI | `cli/index.html` | **Linked.** Command builder for `aegis-init`; reads the canonical active tokens |
 | 9 | Launch Kit | `launch-kit/index.html` (if a page ships) | Hook only: Markdown only |
 
 To add a module once its page has merged:
@@ -161,7 +161,7 @@ To add a module once its page has merged:
 2. Add the page to `PAGES` and its label to the expected list in `tests/e2e.cjs`.
 3. Run `npm test` and `npm run test:e2e`.
 
-The bar stays usable at 390px (it wraps) and keeps 24px targets. Check that it still does with nine links.
+The bar stays usable at 390px (it wraps) and keeps 24px targets with eight links; the browser tests check both.
 
 ## Accessibility claims
 
