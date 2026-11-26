@@ -1,0 +1,79 @@
+/* AegisUI · aegis-init CLI page. Every value resolves through --aegis-* tokens,
+   so the page re-skins with the selected preset and mode. */
+
+.cl { margin: 0; min-height: 100vh; background: var(--aegis-bg-canvas); color: var(--aegis-fg-default); font: var(--aegis-text-body-md); }
+.cl [hidden] { display: none !important; }
+
+.cl-skip { position: absolute; left: var(--aegis-space-12); top: calc(var(--aegis-space-64) * -1); z-index: 100; padding: var(--aegis-space-8) var(--aegis-space-16); border-radius: var(--aegis-radius-md); background: var(--aegis-brand-default); color: var(--aegis-fg-on-brand); font: var(--aegis-text-label-md); }
+.cl-skip:focus { top: var(--aegis-space-12); }
+
+/* ---------------------------------------------------------------- hero */
+.cl-hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--aegis-space-24); max-width: 1240px; margin: 0 auto; padding: var(--aegis-space-48) var(--aegis-space-24) var(--aegis-space-24); }
+.cl-hero__text { display: grid; gap: var(--aegis-space-12); max-width: 46rem; }
+.cl-hero__text h1 { margin: 0; font-family: var(--aegis-font-mono); letter-spacing: normal; }
+.cl-hero__eyebrow { margin: 0; color: var(--aegis-brand-default); }
+.cl-hero__lede { margin: 0; color: var(--aegis-fg-muted); }
+.cl-facts { display: flex; flex-wrap: wrap; gap: var(--aegis-space-8); margin: var(--aegis-space-4) 0 0; padding: 0; list-style: none; }
+
+.cl-swatches { display: flex; gap: var(--aegis-space-8); margin: 0; padding: 0; list-style: none; }
+.cl-swatch { display: grid; justify-items: center; gap: var(--aegis-space-4); }
+.cl-swatch__chip { width: var(--aegis-space-48); height: var(--aegis-space-48); border-radius: var(--aegis-radius-md); border: var(--aegis-border-width-thin) solid var(--aegis-border-default); box-shadow: var(--aegis-shadow-sm); }
+.cl-swatch__cap { max-width: var(--aegis-space-64); font: var(--aegis-text-caption); color: var(--aegis-fg-muted); text-align: center; overflow-wrap: anywhere; }
+
+/* ---------------------------------------------------------------- layout */
+.cl-main { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: var(--aegis-space-24); align-items: start; max-width: 1240px; margin: 0 auto; padding: 0 var(--aegis-space-24) var(--aegis-space-48); }
+.cl-main:focus { outline: none; }
+.cl-wide { grid-column: 1 / -1; }
+.cl-side { display: grid; gap: var(--aegis-space-24); min-width: 0; }
+.cl .ae-card { display: grid; gap: var(--aegis-space-16); min-width: 0; }
+.cl h2, .cl h3 { margin: 0; }
+
+/* ---------------------------------------------------------------- builder */
+.cl-builder .ae-select, .cl-builder .ae-input { width: 100%; }
+.cl-fieldset { display: grid; gap: var(--aegis-space-8); min-width: 0; margin: 0; padding: 0; border: 0; }
+.cl-fieldset legend { padding: 0; margin-bottom: var(--aegis-space-8); }
+.cl-checks { display: grid; gap: var(--aegis-space-8); }
+.cl-checks .ae-check { align-items: flex-start; min-height: var(--aegis-space-24); }
+.cl-checks .ae-check input { margin-top: var(--aegis-space-2); flex: none; }
+
+.cl-seg { display: inline-flex; flex-wrap: wrap; gap: var(--aegis-space-2); padding: var(--aegis-space-2); border-radius: var(--aegis-radius-md); border: var(--aegis-border-width-thin) solid var(--aegis-border-strong); background: var(--aegis-bg-surface-sunken); max-width: 100%; }
+.cl-seg label { position: relative; display: inline-flex; align-items: center; min-height: var(--aegis-size-control-sm); padding: 0 var(--aegis-space-12); border-radius: var(--aegis-radius-sm); font: var(--aegis-text-label-sm); color: var(--aegis-fg-muted); cursor: pointer; white-space: nowrap; }
+.cl-seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.cl-seg label:has(input:checked) { background: var(--aegis-bg-surface); color: var(--aegis-fg-default); box-shadow: var(--aegis-shadow-sm); font-weight: var(--aegis-font-weight-semibold); }
+.cl-seg label:has(input:focus-visible) { outline: var(--aegis-focus-ring-width) solid var(--aegis-focus-ring-color); outline-offset: var(--aegis-focus-ring-offset); }
+
+.cl-command { display: grid; gap: var(--aegis-space-8); padding-top: var(--aegis-space-8); border-top: var(--aegis-border-width-thin) solid var(--aegis-border-default); }
+.cl-command__bar, .cl-term__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--aegis-space-12); flex-wrap: wrap; }
+
+/* ---------------------------------------------------------------- code blocks */
+.cl-cmd, .cl-term, .cl-snippet { margin: 0; overflow-x: auto; padding: var(--aegis-space-16); border-radius: var(--aegis-radius-md); font: var(--aegis-text-code); white-space: pre; tab-size: 2; }
+.cl-cmd { white-space: pre-wrap; word-break: break-all; background: var(--aegis-bg-surface-sunken); color: var(--aegis-fg-default); border: var(--aegis-border-width-thin) solid var(--aegis-border-strong); font-weight: var(--aegis-font-weight-medium); }
+.cl-term { min-height: calc(var(--aegis-space-96) + var(--aegis-space-32)); background: var(--aegis-bg-emphasis); color: var(--aegis-fg-inverse); }
+.cl-snippet { background: var(--aegis-bg-surface-sunken); color: var(--aegis-fg-default); border: var(--aegis-border-width-thin) solid var(--aegis-border-default); }
+.cl-cmd:focus-visible, .cl-term:focus-visible, .cl-snippet:focus-visible { outline: var(--aegis-focus-ring-width) solid var(--aegis-focus-ring-color); outline-offset: var(--aegis-focus-ring-offset); }
+
+/* ---------------------------------------------------------------- tables and lists */
+.cl-files th[scope="row"] { white-space: nowrap; }
+.cl-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cl-two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--aegis-space-32); }
+.cl-two > div { display: grid; gap: var(--aegis-space-12); align-content: start; }
+.cl-codes { display: grid; gap: var(--aegis-space-8); margin: 0; }
+.cl-codes div { display: grid; grid-template-columns: var(--aegis-space-32) 1fr; gap: var(--aegis-space-8); align-items: baseline; }
+.cl-codes dd { margin: 0; color: var(--aegis-fg-muted); }
+.cl-bullets { display: grid; gap: var(--aegis-space-8); margin: 0; padding-left: var(--aegis-space-20); color: var(--aegis-fg-muted); }
+.cl-foot { grid-column: 1 / -1; margin: 0; color: var(--aegis-fg-muted); }
+
+/* ---------------------------------------------------------------- toast */
+.cl-toast { position: fixed; left: 50%; bottom: var(--aegis-space-24); z-index: 60; transform: translate(-50%, var(--aegis-space-16)); opacity: 0; pointer-events: none; padding: var(--aegis-space-8) var(--aegis-space-16); border-radius: var(--aegis-radius-md); background: var(--aegis-bg-emphasis); color: var(--aegis-fg-inverse); font: var(--aegis-text-label-md); box-shadow: var(--aegis-shadow-lg); transition: opacity var(--aegis-duration-base) var(--aegis-easing-standard), transform var(--aegis-duration-base) var(--aegis-easing-standard); }
+.cl-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 900px) {
+  .cl-main { grid-template-columns: minmax(0, 1fr); }
+  .cl-hero { padding-top: var(--aegis-space-32); }
+}
+@media (max-width: 560px) {
+  .cl-hero, .cl-main { padding-inline: var(--aegis-space-16); }
+  .cl-swatch__chip { width: var(--aegis-space-40); height: var(--aegis-space-40); }
+  .cl-files th:nth-child(3), .cl-files td:nth-child(3) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .cl-toast { transition: none; } }

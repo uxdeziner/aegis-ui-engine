@@ -10,6 +10,10 @@ AegisUI is a design-system toolkit built from static HTML, CSS and ES2017+ JavaS
 | **Figma Bridge** | [`figma-plugin/index.html`](figma-plugin/index.html) | Help page and validator for **AegisUI Token Sync**, the Figma plugin that turns token JSON into Variables, styles and a style guide. Details: [`figma-plugin/README.md`](figma-plugin/README.md). |
 | **Showcase** | [`showcase/showcase.html`](showcase/showcase.html) | UX engineering case study with an interactive before/after, ROI model and architecture overview. |
 | **Simulator** | [`simulator/simulator.html`](simulator/simulator.html) | Shows a preset workspace through eight accessibility simulations (color-vision types, projector washout, 200% text, RTL, focus order) and exports a review report. It opens on the preset behind the active Studio tokens. A review aid, not a conformance test. Details: [`simulator/README.md`](simulator/README.md). |
+| **Playground** | [`playground/playground.html`](playground/playground.html) | Prompt-to-Component Sandbox: 39 copy-ready enterprise components styled only with tokens, with live preview in any preset, Copy HTML/CSS/JS and an AI prompt builder. It opens on the preset behind the active Studio tokens. Details: [`playground/README.md`](playground/README.md). |
+| **CLI** | [`cli/index.html`](cli/index.html) | Command builder for **aegis-init**, which scaffolds a preset into a project (`variables.css`, `tokens.json`, `CLAUDE.md`, `.cursorrules`). The page shows the exact files and byte counts the CLI writes. Details: [`cli/README.md`](cli/README.md). |
+
+Launch material (LinkedIn drafts, an architecture article and a demo script, with a claims checklist) lives in [`launch-kit/LAUNCH-GUIDE.md`](launch-kit/LAUNCH-GUIDE.md). It's Markdown only and isn't part of the app.
 
 Every page carries the same module navigation bar at the top. It's plain HTML with relative links, the current module is marked with `aria-current="page"`, and it works without JavaScript.
 
@@ -18,6 +22,13 @@ Every page carries the same module navigation bar at the top. It's plain HTML wi
 ```bash
 npm run serve                # http://127.0.0.1:4173/aegis-ui-engine/  (no dependencies)
 # or: python3 -m http.server, then open /index.html
+```
+
+Scaffold a preset into a project with the CLI (Node ≥ 18, no dependencies, no network):
+
+```bash
+node cli/aegis-init.js --list                         # 12 presets + aliases
+node cli/aegis-init.js --preset=gov --out=./my-app    # tokens + AI rule files
 ```
 
 You can also open the HTML files straight from disk. For **cross-module sync** (Studio → Auditor and Figma Bridge), serve the folder over HTTP. Browsers give `file://` pages inconsistent storage origins, and Firefox isolates them by default. All URLs are relative, so the site also works from a sub-path such as GitHub Pages' `/<repo>/` (the browser tests run under `/aegis-ui-engine/`).
@@ -36,6 +47,9 @@ presets/themes/*.mjs ──npm run build──► presets/tokens/<id>.json ─�
                                         ▲                     ┌──────────────── active tokens ◄───────┘
                                         │                     ▼                        ▼
                                   Figma plugin ◄── aegis-tokens.json ── Figma Bridge   Auditor (validation + preview)
+                                                                                       Simulator, Playground, CLI page (preset)
+
+presets/tokens/<id>.json + presets/css/<id>.css ──► cli/aegis-init.js ──► variables.css · tokens.json · CLAUDE.md · .cursorrules
 ```
 
 ### Token contract
@@ -64,7 +78,7 @@ Exact preset values remain in `presets/tokens/<id>.json`.
 
 **Old exports are preserved.** Studio still exports `variables.css` (`--<prefix>-*`, light/dark, reduced motion) and the W3C DTCG `tokens.json` unchanged. The canonical document is an *additional* export, `aegis-tokens.json`, also bundled in the zip as `tokens/aegis-tokens.json`.
 
-**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for Phase 2 modules (Playground, Simulator, CLI, Launch Kit). The Simulator is linked; links to the other modules are added once their pages exist.
+**Building a new module?** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) is the stable contract for connecting to AegisUI: bridge API (`API_VERSION` 1.0.0), storage key and record shape, versioning rules, and the navigation hook for new modules. The Simulator, Playground and CLI page are linked; Launch Kit is Markdown only and has no page.
 
 ### Active token baseline
 
@@ -72,10 +86,11 @@ Whenever Studio settings change, the Studio writes the canonical document and it
 
 | Key | Owner | Contents |
 | --- | --- | --- |
-| `aegis:active-tokens:v1` | Studio (written); Auditor, Figma Bridge and Simulator (read) | `{ schema: "aegis-active-tokens@1", savedAt, origin, presetId, prefix, extraVars, doc }` |
+| `aegis:active-tokens:v1` | Studio (written); Auditor, Figma Bridge, Simulator, Playground and CLI page (read) | `{ schema: "aegis-active-tokens@1", savedAt, origin, presetId, prefix, extraVars, doc }` |
 | `aegisui:v1`, `aegisui:prefs:v1` | Studio | Generator settings (plus the selected preset) and UI preferences. Unreadable state is discarded and defaults load. |
 | `aegis.auditor.code`, `.theme`, `.baseline` | Auditor | Editor content, theme, baseline mode (`active` or `none`) |
 | `aegis-theme` | Showcase | Theme |
+| `aegisui:playground:v1` | Playground | Last preset, mode, template and viewport, plus when you last picked a preset there (`pickedAt`) |
 
 ## Studio
 
@@ -129,8 +144,11 @@ To use **AegisUI Token Sync** in Figma, import `figma-plugin/manifest.json` in t
 ## Testing
 
 ```bash
-npm test           # strict preset build + Figma plugin end-to-end (mock API) + token contract tests
+npm test           # strict preset build + Figma plugin end-to-end (mock API) + token contract tests + CLI tests
+npm run test:cli   # CLI only: generation, options, path safety, and the CLI page's manifest
 npm run test:e2e   # browser integration tests (needs Playwright + Chromium installed locally)
+node playground/tests/run.cjs   # Playground: 39 templates, interactions, preset inheritance
+node simulator/tests/run.cjs    # Simulator browser tests
 ```
 
 - `npm test` needs only Node ≥ 18.
@@ -141,10 +159,12 @@ npm run test:e2e   # browser integration tests (needs Playwright + Chromium inst
     - a full plugin import of a Studio export
     - unchanged shape of the old exports
     - baseline storage edge cases: empty, corrupt, invalid, quota, unavailable
+  - **CLI tests** (`cli/test/*.test.js`) cover generation for every preset, options, overwrite and path safety, and check that `cli/manifest.js` (the CLI page's data) matches a fresh dry run. Rebuild it with `npm run build:cli-manifest` after changing the CLI or the presets.
 - `npm run test:e2e` (`tests/e2e.cjs`) serves the repo under `/aegis-ui-engine/` and covers:
   - every page at desktop and mobile: console errors, missing or out-of-mount assets, sideways scroll, and the navigation (labels, one `aria-current`, relative links, 24px targets, keyboard order)
   - all 12 presets in the Studio, persistence across reloads, empty and corrupt storage, and cross-tab sync
   - Auditor baseline validation and preview injection
+  - Simulator, Playground and CLI page inheriting the active Studio tokens, and the CLI page's output matching a real dry run
   - canonical export and Figma Bridge validation, the zip contents, and Preset Vault → Studio
   - Playwright is development tooling only; the app never loads it. Set `SHOTS=dir` to save screenshots.
 
@@ -174,6 +194,10 @@ auditor/                     Auditor
 presets/                     Preset Vault, themes, build, schema, tokens, CSS
 figma-plugin/                Token Sync plugin (manifest, code.js, ui.html) + Figma Bridge help page
 showcase/                    Case study
+simulator/                   Accessibility Simulator
+playground/                  Prompt-to-Component Sandbox (39 templates)
+cli/                         aegis-init CLI, its command-builder page and manifest
+launch-kit/                  Launch material (Markdown only)
 shared/                      aegis-contract.js (token contract), aegis-nav.css (module navigation)
 docs/                        INTEGRATION.md: stable bridge API, storage key and navigation hook for new modules
 tests/                       contract tests, browser tests, sub-path static server

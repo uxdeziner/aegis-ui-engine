@@ -10,10 +10,12 @@
   "scripts": {
     "build": "node presets/build/build.mjs",
     "build:strict": "node presets/build/build.mjs --strict",
-    "test": "node presets/build/build.mjs --strict && node figma-plugin/test/run.cjs && node tests/contract.test.cjs",
+    "test": "node presets/build/build.mjs --strict && node figma-plugin/test/run.cjs && node tests/contract.test.cjs && npm run test:cli",
     "test:plugin": "node figma-plugin/test/run.cjs",
     "test:contract": "node tests/contract.test.cjs",
+    "test:cli": "node --test cli/test/*.test.js",
     "test:e2e": "node tests/e2e.cjs",
+    "build:cli-manifest": "node cli/tools/build-manifest.cjs",
     "serve": "node tests/serve.cjs"
   }
 }

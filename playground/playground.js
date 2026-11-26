@@ -1,13 +1,15 @@
 /* AegisUI Playground — Prompt-to-Component Sandbox (vanilla ES, zero runtime deps).
  *
  * Integration hooks (see README.md):
- *   - reads the active preset from ?preset=&mode=, then localStorage "aegisui:active-preset"
+ *   - reads the active preset from ?preset=&mode=, then the canonical active tokens
+ *     (localStorage "aegis:active-tokens:v1" via ../shared/aegis-contract.js, read-only) or the
+ *     playground's own last pick, whichever is newer, then the legacy "aegisui:active-preset"
  *     ({ id, mode } JSON or a bare id), then its own "aegisui:playground:v1", then falls back
- *   - listens for window "aegis:preset-change" CustomEvents ({ detail: { id, mode } }) and
- *     cross-tab "storage" events on "aegisui:active-preset"
+ *   - listens for window "aegis:preset-change" CustomEvents ({ detail: { id, mode } }),
+ *     canonical active-token changes from other tabs, and "storage" events on "aegisui:active-preset"
  *   - emits window "aegis:playground-change" ({ detail: { preset, mode, template } })
  *   - exposes window.AegisPlayground
- *   - never writes the shared key; only its own "aegisui:playground:v1"
+ *   - never writes the shared keys; only its own "aegisui:playground:v1"
  */
 (function () {
   'use strict';
@@ -18,6 +20,7 @@
   var MODES = ['light', 'dark', 'auto'];
 
   var P = window.AegisPresets || null;
+  var K = window.AegisContract || null;   // canonical token bridge (shared/aegis-contract.js), read-only here
   var T = window.AegisPlaygroundTemplates;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -46,16 +49,33 @@
     return { id: v.id || v.preset || v.theme, mode: v.mode };
   }
 
+  /** Preset behind the canonical active tokens (written by the Studio). Null when empty, corrupt,
+   *  blocked, or a Studio system that was not seeded from a preset. */
+  function activeTokensPreset() {
+    if (!K || typeof K.readBaseline !== 'function') return null;
+    var r;
+    try { r = K.readBaseline(); } catch (e) { return null; }
+    if (!r || r.status !== 'ok' || !r.record.presetId) return null;
+    var meta = r.record.doc && r.record.doc.meta;
+    var at = Date.parse(r.record.savedAt);
+    return { id: r.record.presetId, mode: meta && meta.defaultMode, at: isNaN(at) ? 0 : at };
+  }
+
   function resolveInitial() {
     var q = new URLSearchParams(location.search);
     var shared = parseShared(store.getJSON(SHARED_KEY));
     var own = store.getJSON(OWN_KEY);
     own = own && typeof own === 'object' ? own : {};
-    var candidates = [
-      { id: q.get('preset') || q.get('theme'), mode: q.get('mode'), src: 'URL' },
-      { id: shared.id, mode: shared.mode, src: 'shared preset (' + SHARED_KEY + ')' },
-      { id: own.preset, mode: own.mode, src: 'last playground session' }
-    ];
+    var active = activeTokensPreset();
+    var ownPick = { id: own.preset, mode: own.mode, src: 'last playground session' };
+    var activeCand = active ? { id: active.id, mode: active.mode, src: 'active Studio tokens' } : null;
+    // The most recent choice wins: a preset picked here after the Studio last saved beats the Studio's.
+    var candidates = [{ id: q.get('preset') || q.get('theme'), mode: q.get('mode'), src: 'URL' }];
+    if (activeCand) {
+      if (typeof own.pickedAt === 'number' && own.pickedAt > active.at) candidates.push(ownPick);
+      candidates.push(activeCand);
+    }
+    candidates.push({ id: shared.id, mode: shared.mode, src: 'shared preset (' + SHARED_KEY + ')' }, ownPick);
     var note = '';
     for (var i = 0; i < candidates.length; i++) {
       var c = candidates[i];
@@ -69,6 +89,7 @@
   }
 
   var init = resolveInitial();
+  var pickedAt = typeof init.own.pickedAt === 'number' ? init.own.pickedAt : null;
   var state = {
     preset: init.id,
     mode: init.mode,
@@ -89,7 +110,9 @@
   }
 
   function persist() {
-    store.set(OWN_KEY, { preset: state.preset, mode: state.mode, template: state.template && state.template.id, vp: state.vp });
+    var rec = { preset: state.preset, mode: state.mode, template: state.template && state.template.id, vp: state.vp };
+    if (pickedAt) rec.pickedAt = pickedAt;
+    store.set(OWN_KEY, rec);
   }
 
   function emit() {
@@ -123,17 +146,25 @@
     presetSel.innerHTML = '<option value="">Fallback (built-in)</option>';
     presetSel.disabled = true;
   }
-  presetSel.addEventListener('change', function () { setPreset(presetSel.value); });
-  $$('#pg-mode input').forEach(function (r) { r.addEventListener('change', function () { setPreset(undefined, r.value); }); });
+  function userPick() { pickedAt = Date.now(); init.note = ''; init.src = 'you'; }
+  presetSel.addEventListener('change', function () { userPick(); setPreset(presetSel.value); });
+  $$('#pg-mode input').forEach(function (r) { r.addEventListener('change', function () { userPick(); setPreset(undefined, r.value); }); });
 
   function syncControls() {
     if (state.preset) presetSel.value = state.preset;
     $$('#pg-mode input').forEach(function (r) { r.checked = r.value === state.mode; });
     var m = metaOf(state.preset);
-    $('#pg-preset-note').textContent = init.note || (m ? m.category + ' · ' + m.density + ' density · WCAG ' + m.a11yTarget + (init.src !== 'default' ? ' · inherited from ' + init.src : '') : '');
+    $('#pg-preset-note').textContent = init.note || (m ? m.category + ' · ' + m.density + ' density · WCAG ' + m.a11yTarget + (init.src !== 'default' && init.src !== 'you' ? ' · inherited from ' + init.src : '') : '');
   }
 
   window.addEventListener('aegis:preset-change', function (e) { var d = e.detail || {}; init.note = ''; init.src = 'host page'; setPreset(d.id || d.preset, d.mode); });
+  // Canonical active tokens changed in another tab (e.g. a preset picked in the Studio): newest choice wins.
+  if (K && typeof K.onBaselineChange === 'function') {
+    K.onBaselineChange(function () {
+      var a = activeTokensPreset();
+      if (a && validId(a.id) && a.id !== state.preset) { init.note = ''; init.src = 'active Studio tokens'; setPreset(a.id, a.mode); }
+    });
+  }
   window.addEventListener('storage', function (e) {
     if (e.key !== SHARED_KEY) return;
     var s = parseShared(store.getJSON(SHARED_KEY));
