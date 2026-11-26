@@ -1,3 +1,5 @@
+> **Merged.** These additions are now in the root README, `package.json` (`test:cli`) and the shared navigation (CLI page). This file is kept for history.
+
 # Proposed root README additions
 
 The root `README.md` and shared navigation are owned by another workstream, so this PR does not edit them. Below is suggested text for whoever owns the root README to merge in when convenient.

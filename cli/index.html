@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" data-aegis-theme="enterprise-saas" data-aegis-mode="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aegis-init CLI · AegisUI</title>
+  <meta name="description" content="Build an aegis-init command that scaffolds one of the 12 AegisUI presets into a project: tokens.json, variables.css, CLAUDE.md and .cursorrules. See the exact files and sizes it writes before you run it.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='4' width='20' height='16' rx='3' fill='%235263e4'/%3E%3Cpath d='m7 10 3 2-3 2M12 15h5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <!-- Relative paths only, so the page works from any sub-path (e.g. /aegis-ui-engine/cli/). -->
+  <link rel="stylesheet" href="../presets/aegis-presets.css">
+  <link rel="stylesheet" href="../presets/aegis-components.css">
+  <link rel="stylesheet" href="cli-page.css">
+  <link rel="stylesheet" href="../shared/aegis-nav.css">
+</head>
+<body class="ae-root cl">
+  <a class="cl-skip" href="#cl-main">Skip to command builder</a>
+
+  <nav class="aegis-nav" aria-label="AegisUI modules">
+    <span class="aegis-nav__brand"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 3.5 5.2v6.3c0 5.3 3.6 9.3 8.5 10.5 4.9-1.2 8.5-5.2 8.5-10.5V5.2z"/></svg><span>AegisUI</span></span>
+    <ul class="aegis-nav__list">
+      <li><a href="../index.html">Studio</a></li>
+      <li><a href="../auditor/auditor.html">Auditor</a></li>
+      <li><a href="../presets/index.html">Preset Vault</a></li>
+      <li><a href="../figma-plugin/index.html">Figma Bridge</a></li>
+      <li><a href="../showcase/showcase.html">Showcase</a></li>
+      <li><a href="../simulator/simulator.html">Simulator</a></li>
+      <li><a href="../playground/playground.html">Playground</a></li>
+      <li><a href="index.html" aria-current="page">CLI</a></li>
+      <!-- aegis-nav:future-modules — Launch Kit adds its <li> here if it ever ships a page. See docs/INTEGRATION.md#navigation. -->
+    </ul>
+  </nav>
+
+  <header class="cl-hero">
+    <div class="cl-hero__text">
+      <p class="ae-text-overline cl-hero__eyebrow">Command line</p>
+      <h1 class="ae-text-heading-xl">aegis-init</h1>
+      <p class="ae-text-body-lg cl-hero__lede">Scaffold any of the 12 AegisUI presets into a project, so your code and your AI coding assistant work from the same tokens.</p>
+      <ul class="cl-facts" aria-label="Requirements">
+        <li class="ae-badge">Node 18 or later</li>
+        <li class="ae-badge">Zero dependencies</li>
+        <li class="ae-badge">No network calls</li>
+        <li class="ae-badge">Never overwrites without --force</li>
+      </ul>
+    </div>
+    <ol class="cl-swatches" id="cl-swatches" aria-label="Preset colors"></ol>
+  </header>
+
+  <main class="cl-main" id="cl-main" tabindex="-1">
+    <section class="ae-card cl-builder" aria-labelledby="cl-builder-title">
+      <h2 class="ae-text-heading-sm" id="cl-builder-title">Build your command</h2>
+
+      <div class="ae-field">
+        <label class="ae-label" for="cl-preset">Preset</label>
+        <select class="ae-select" id="cl-preset" aria-describedby="cl-preset-help"></select>
+        <p class="ae-help" id="cl-preset-help"></p>
+      </div>
+
+      <div class="ae-field">
+        <label class="ae-label" for="cl-out">Output folder</label>
+        <input class="ae-input" id="cl-out" type="text" value="./my-app" spellcheck="false" autocomplete="off" aria-describedby="cl-out-help cl-out-error">
+        <p class="ae-help" id="cl-out-help">Relative to the folder you run it from. It's created if missing.</p>
+        <p class="ae-help ae-help--error" id="cl-out-error" hidden></p>
+      </div>
+
+      <div class="ae-field">
+        <label class="ae-label" for="cl-path">Path to the CLI</label>
+        <input class="ae-input" id="cl-path" type="text" value="cli/aegis-init.js" spellcheck="false" autocomplete="off" aria-describedby="cl-path-help">
+        <p class="ae-help" id="cl-path-help">Use <code class="ae-code">cli/aegis-init.js</code> from the AegisUI repo root, or a path such as <code class="ae-code">../aegis-ui-engine/cli/aegis-init.js</code> from your own project.</p>
+      </div>
+
+      <fieldset class="cl-fieldset">
+        <legend class="ae-label">Mode for the AI rule files</legend>
+        <div class="cl-seg" id="cl-mode">
+          <label><input type="radio" name="cl-mode" value="" checked><span id="cl-mode-default">Preset default</span></label>
+          <label><input type="radio" name="cl-mode" value="light"><span>Light</span></label>
+          <label><input type="radio" name="cl-mode" value="dark"><span>Dark</span></label>
+          <label><input type="radio" name="cl-mode" value="auto"><span>Auto</span></label>
+        </div>
+        <p class="ae-help">variables.css always contains every mode. This picks the mode shown in CLAUDE.md and .cursorrules.</p>
+      </fieldset>
+
+      <fieldset class="cl-fieldset">
+        <legend class="ae-label">Options</legend>
+        <div class="cl-checks">
+          <label class="ae-check"><input type="checkbox" id="cl-force"><span>Replace existing files <code class="ae-code">--force</code></span></label>
+          <label class="ae-check"><input type="checkbox" id="cl-dry"><span>Dry run, write nothing <code class="ae-code">--dry-run</code></span></label>
+          <label class="ae-check"><input type="checkbox" id="cl-nofonts"><span>Leave out the Google Fonts import <code class="ae-code">--no-fonts</code></span></label>
+          <label class="ae-check"><input type="checkbox" id="cl-json"><span>Machine-readable output <code class="ae-code">--json</code></span></label>
+        </div>
+      </fieldset>
+
+      <div class="cl-command">
+        <div class="cl-command__bar">
+          <h3 class="ae-text-label-md" id="cl-cmd-title">Command</h3>
+          <button class="ae-btn ae-btn--primary ae-btn--sm" type="button" id="cl-copy">Copy command</button>
+        </div>
+        <pre class="cl-cmd" tabindex="0" aria-labelledby="cl-cmd-title"><code id="cl-cmd"></code></pre>
+      </div>
+    </section>
+
+    <section class="cl-side" aria-label="Result">
+      <div class="ae-card cl-term-card">
+        <div class="cl-term__bar">
+          <h2 class="ae-text-label-md">What you'll see</h2>
+          <span class="ae-badge" id="cl-exit"></span>
+        </div>
+        <pre class="cl-term" tabindex="0" aria-label="Expected terminal output"><code id="cl-term"></code></pre>
+        <p class="ae-help">Byte counts come from the CLI's own dry run for this preset, mode and fonts setting.</p>
+      </div>
+
+      <div class="ae-card">
+        <h2 class="ae-text-label-md">Then in your app</h2>
+        <pre class="cl-snippet" tabindex="0" aria-label="HTML to add to your app"><code id="cl-snippet"></code></pre>
+        <p class="ae-help">For the <code class="ae-code">.ae-*</code> component classes, also copy <code class="ae-code">presets/aegis-components.css</code>. The CLI writes token files only.</p>
+      </div>
+    </section>
+
+    <section class="ae-card cl-wide" aria-labelledby="cl-files-title">
+      <h2 class="ae-text-heading-sm" id="cl-files-title">What it writes</h2>
+      <div class="ae-table-wrap">
+        <table class="ae-table cl-files">
+          <thead><tr><th scope="col">File</th><th scope="col">Bytes</th><th scope="col">Source</th><th scope="col">Contents</th></tr></thead>
+          <tbody id="cl-files"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="ae-card cl-wide cl-two" aria-label="Exit codes and safety">
+      <div>
+        <h2 class="ae-text-heading-sm">Exit codes</h2>
+        <dl class="cl-codes">
+          <div><dt><code class="ae-code">0</code></dt><dd>Success</dd></div>
+          <div><dt><code class="ae-code">1</code></dt><dd>Usage error: unknown option or preset, or a bad path</dd></div>
+          <div><dt><code class="ae-code">2</code></dt><dd>Output files already exist. Nothing was written; re-run with <code class="ae-code">--force</code></dd></div>
+          <div><dt><code class="ae-code">3</code></dt><dd>Preset data invalid or out of sync, or an IO error</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h2 class="ae-text-heading-sm">Safety</h2>
+        <ul class="cl-bullets">
+          <li>Checks all four files first. If any exists, it writes nothing unless you pass <code class="ae-code">--force</code>.</li>
+          <li>Writes each file to a temp file, then renames it into place, then reads it back and validates it.</li>
+          <li>Refuses an output folder with <code class="ae-code">..</code>, an absolute path, a symlinked folder, or one outside the current folder.</li>
+          <li>Validates the preset against the token schema before writing anything.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="cl-foot ae-text-caption">This page only builds the command. It never runs anything or writes files. Full reference: <a class="ae-link" href="README.md">cli/README.md</a>.</p>
+  </main>
+
+  <div class="cl-toast" role="status" aria-live="polite" id="cl-toast"></div>
+
+  <script src="../presets/aegis-presets.js"></script>
+  <script src="../shared/aegis-contract.js"></script>
+  <script src="manifest.js"></script>
+  <script src="cli-page.js"></script>
+</body>
+</html>

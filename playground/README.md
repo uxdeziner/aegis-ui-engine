@@ -49,26 +49,28 @@ playground/
 The first valid source wins. Each candidate is checked against `AegisPresets.ids`.
 
 1. URL query: `?preset=<id>&mode=light|dark|auto` (`theme` is accepted as an alias of `preset`)
-2. Shared key `localStorage["aegisui:active-preset"]`: either a bare id (`"legal-slate"`) or JSON `{ "id": "legal-slate", "mode": "dark" }`. `preset` / `theme` are accepted for `id`.
-3. The playground's own key `localStorage["aegisui:playground:v1"]` (last preset, mode, template and viewport)
-4. Default: `enterprise-saas` in its default mode
+2. The preset behind the **canonical active tokens** (`localStorage["aegis:active-tokens:v1"]`, read through `../shared/aegis-contract.js`), unless you picked a preset in the Playground more recently than the Studio last saved. The newest choice wins: the Playground stores `pickedAt` with your pick and compares it with the record's `savedAt`.
+3. Legacy shared key `localStorage["aegisui:active-preset"]`: either a bare id (`"legal-slate"`) or JSON `{ "id": "legal-slate", "mode": "dark" }`. `preset` / `theme` are accepted for `id`.
+4. The playground's own key `localStorage["aegisui:playground:v1"]` (last preset, mode, template and viewport)
+5. Default: `enterprise-saas` in its default mode
 
 If an id is unknown, the playground uses the default and shows a note under the preset picker.
 If the registry script fails to load, the playground keeps working on **`fallback-tokens.css`**: the picker is disabled and light/dark still work. The fallback is a re-scoped copy of the Enterprise SaaS preset that applies only while no `data-aegis-theme` is set. All storage access is wrapped in `try/catch`.
 
 ## Integration hooks (for the shared navigation and canonical token bridge)
 
-The playground **never writes** the shared key and edits no shared or root files. To integrate it:
+The playground is in the shared module navigation and reads the canonical active tokens. It **never writes** the shared keys. Hooks:
 
 | Hook | Direction | Contract |
 | --- | --- | --- |
-| `localStorage["aegisui:active-preset"]` | bridge → playground | Read at startup. Changes made in other tabs are applied live through the `storage` event. Value: `"<id>"` or `{"id","mode"}`. |
+| `localStorage["aegis:active-tokens:v1"]` (via `AegisContract.readBaseline` / `onBaselineChange`) | Studio → playground | Read at startup and followed live when another tab (the Studio) changes it. Only `presetId` is used. |
+| `localStorage["aegisui:active-preset"]` | legacy bridge → playground | Read at startup. Changes made in other tabs are applied live through the `storage` event. Value: `"<id>"` or `{"id","mode"}`. |
 | `window.dispatchEvent(new CustomEvent('aegis:preset-change', { detail: { id, mode } }))` | host → playground | Applies the preset (and the mode if given) immediately. Use this when the playground is embedded in, or shares a window with, the canonical bridge. |
 | `window` event `aegis:playground-change` | playground → host | Fired on preset, mode and template changes: `{ detail: { preset, mode, template } }`. The bridge can listen for it and persist the shared key if that's the desired behavior. |
 | `window.AegisPlayground` | API | `templates()`, `select(id)`, `setPreset(id, mode)`, `getState()`, `match(text)`, `buildPrompt(id, request)`, `tokensOf(id)`, `source(id)` → `{ html, css, js }`, `version` |
 | `#<template-id>` | URL | Deep-links to a template (for example `playground.html#kanban`). It combines with `?preset=`. |
 
-**Suggested nav entry** for whoever owns shared navigation (relative to the repo root): `playground/playground.html`, label "Playground". The page links back to `../index.html` from its brand mark and adds no other shared chrome.
+The shared navigation links here as "Playground" (`playground/playground.html`).
 
 ## Adding a template
 
