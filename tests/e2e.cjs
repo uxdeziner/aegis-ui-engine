@@ -21,6 +21,11 @@ const { start } = require('./serve.cjs');
 
 let chromium;
 try { ({ chromium } = require('playwright')); } catch (e) {
+  // CI sets AEGIS_REQUIRE_BROWSER=1 so a missing Playwright fails the job instead of passing silently.
+  if (process.env.AEGIS_REQUIRE_BROWSER) {
+    console.error('Playwright is required (AEGIS_REQUIRE_BROWSER is set) but could not be loaded.');
+    process.exit(2);
+  }
   console.log('Playwright is not installed; skipping browser tests. Install it locally (npm i -D playwright) to run them.');
   process.exit(0);
 }

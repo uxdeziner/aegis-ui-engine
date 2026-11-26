@@ -10,10 +10,14 @@
   "scripts": {
     "build": "node presets/build/build.mjs",
     "build:strict": "node presets/build/build.mjs --strict",
-    "test": "node presets/build/build.mjs --strict && node figma-plugin/test/run.cjs && node tests/contract.test.cjs",
+    "test": "node presets/build/build.mjs --strict && node figma-plugin/test/run.cjs && node tests/contract.test.cjs && node --test cli/test/aegis-init.test.js",
     "test:plugin": "node figma-plugin/test/run.cjs",
     "test:contract": "node tests/contract.test.cjs",
+    "test:cli": "node --test cli/test/aegis-init.test.js",
     "test:e2e": "node tests/e2e.cjs",
+    "test:simulator": "node simulator/tests/run.cjs",
+    "test:playground": "node playground/tests/run.cjs",
+    "test:browser": "npm run test:e2e && npm run test:simulator && npm run test:playground",
     "serve": "node tests/serve.cjs"
   }
 }
