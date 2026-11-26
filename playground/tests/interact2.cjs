@@ -102,7 +102,8 @@ const out = []; const ok = (n, c, x) => out.push((c ? 'PASS ' : 'FAIL ') + n + (
   ok('chat streams reply', (await f.locator('.ch__msg--ai').count()) === 2 && (await f.locator('.ch__msg--ai').last().textContent()).length > 40);
   f = await sel('confirm-dialog');
   await f.locator('[data-md-open]').click(); await f.locator('[data-md-input]').fill('northwind-prod'); await f.locator('[data-md-delete]').click();
-  ok('type-to-confirm dialog', /scheduled for deletion/.test(await f.locator('[data-md-status]').textContent()));
+  // The dialog's 'close' event (which writes the status) fires in a later task, so wait for it instead of reading right away.
+  ok('type-to-confirm dialog', await f.locator('[data-md-status]').filter({ hasText: /scheduled for deletion/ }).waitFor({ timeout: 5000 }).then(() => true, () => false));
   ok('no console errors', errs.length === 0, errs);
   console.log(out.join('\n')); console.log('\nFAILS:', out.filter(x => x.startsWith('FAIL')).length, '/', out.length);
   await b.close();

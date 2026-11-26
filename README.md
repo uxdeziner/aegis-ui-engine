@@ -144,12 +144,15 @@ To use **AegisUI Token Sync** in Figma, import `figma-plugin/manifest.json` in t
 ## Testing
 
 ```bash
-npm test           # strict preset build + Figma plugin end-to-end (mock API) + token contract tests + CLI tests
-npm run test:cli   # CLI only: generation, options, path safety, and the CLI page's manifest
-npm run test:e2e   # browser integration tests (needs Playwright + Chromium installed locally)
-node playground/tests/run.cjs   # Playground: 39 templates, interactions, preset inheritance
-node simulator/tests/run.cjs    # Simulator browser tests
+npm test                 # strict preset build + Figma plugin end-to-end (mock API) + token contract tests + CLI tests
+npm run test:cli         # CLI only: generation, options, path safety, and the CLI page's manifest
+npm run test:e2e         # browser integration tests (needs Playwright + Chromium installed locally)
+npm run test:simulator   # Accessibility Simulator browser tests (Playwright)
+npm run test:playground  # Playground: 39 templates, interactions, preset inheritance (Playwright)
+npm run test:browser     # all three browser suites
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm test` on Node 18, 20 and 22, and the three browser suites on Node 22 with Chromium, on every pull request and every push to `main`.
 
 - `npm test` needs only Node ≥ 18.
   - **Contract tests** (`tests/contract.test.cjs`) cover:
