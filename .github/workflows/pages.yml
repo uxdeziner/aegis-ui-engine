@@ -1,0 +1,49 @@
+name: Deploy site
+
+# Publishes the AegisUI suite to GitHub Pages after the tests pass.
+# One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Until that is set, the deploy job fails; the site itself is unaffected.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Test and package the site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Tests (presets, Figma plugin, token contract, CLI)
+        run: npm test
+      - name: Package the static site
+        run: node tools/package-site.cjs _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
