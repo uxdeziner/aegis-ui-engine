@@ -114,10 +114,15 @@ const ok = (name, cond, extra) => out.push((cond ? 'PASS ' : 'FAIL ') + name + (
   f = await sel('a11y-drawer');
   await f.locator('[data-ad-open]').click();
   ok('a11y drawer opens modal', await f.locator('[data-ad-dialog][open]').count() === 1);
-  // Tick the switch before enlarging the text: at 140% the content grows, the preview iframe
-  // resizes to fit (ResizeObserver) and the full-height drawer stretches with it, which can
-  // move the switch below the page viewport while Playwright is clicking it.
-  await f.locator('input[name="dyslexia"]').check();
+  // Toggle the switch from the keyboard. The drawer is a full-height modal <dialog> in the
+  // preview iframe, which grows to fit its content and can be taller than the window. Its
+  // bottom options can then sit below the window, and a fixed-position element can't be
+  // scrolled into view, so a mouse click times out depending on where the page is scrolled.
+  // Focus + Space is how keyboard users reach it and doesn't depend on the scroll position.
+  const dys = f.locator('input[name="dyslexia"]');
+  await dys.focus();
+  await p.keyboard.press('Space');
+  ok('a11y drawer switch toggles from the keyboard', await dys.isChecked());
   await f.locator('#ad-size').fill('140');
   const scale = await f.locator('[data-ad-content]').evaluate(e => getComputedStyle(e).getPropertyValue('--ad-scale').trim());
   ok('a11y drawer applies prefs', scale === '1.4' && await f.locator('[data-ad-content].is-dyslexia').count() === 1, scale);
